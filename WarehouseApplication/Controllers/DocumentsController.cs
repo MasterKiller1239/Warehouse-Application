@@ -1,9 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using WarehouseApplication.Data;
 using WarehouseApplication.Dtos;
-using WarehouseApplication.Models;
+using WarehouseApplication.Services.Interfaces;
 
 namespace WarehouseApplication.Controllers
 {
@@ -11,42 +9,41 @@ namespace WarehouseApplication.Controllers
     [Route("api/[controller]")]
     public class DocumentsController : ControllerBase
     {
-        private readonly WarehouseContext _context;
-        private readonly IMapper _mapper;
+        private readonly IDocumentService _documentService;
 
-        public DocumentsController(WarehouseContext context, IMapper mapper)
+        public DocumentsController(IDocumentService documentService)
         {
-            _context = context;
-            _mapper = mapper;
+            _documentService = documentService ?? throw new ArgumentNullException(nameof(documentService));
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<DocumentDto>>> Get() =>
-            Ok(_mapper.Map<IEnumerable<DocumentDto>>(await _context.Documents
-                .Include(d => d.Items)
-                .ToListAsync()));
+        public async Task<ActionResult<IEnumerable<DocumentDto>>> Get()
+        {
+            var documents = await _documentService.GetAllAsync();
+            return Ok(documents);
+        }
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult<DocumentDto>> Get(int id)
+        {
+            var document = await _documentService.GetByIdAsync(id);
+            if (document == null) return NotFound();
+            return Ok(document);
+        }
 
         [HttpPost]
-        public async Task<ActionResult> Post(DocumentDto dto)
+        public async Task<ActionResult<DocumentDto>> Post(DocumentDto dto)
         {
-            var entity = _mapper.Map<Document>(dto);
-            _context.Documents.Add(entity);
-            await _context.SaveChangesAsync();
-            return Ok();
+            var created = await _documentService.CreateAsync(dto);
+            return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
         }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> Put(int id, DocumentDto dto)
         {
             if (id != dto.Id) return BadRequest();
-            var entity = await _context.Documents.Include(d => d.Items).FirstOrDefaultAsync(d => d.Id == id);
-            if (entity == null) return NotFound();
-
-            _mapper.Map(dto, entity);
-            await _context.SaveChangesAsync();
-            return NoContent();
+            var success = await _documentService.UpdateAsync(id, dto);
+            return success ? NoContent() : NotFound();
         }
     }
-
-
 }

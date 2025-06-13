@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WarehouseApplication.Data;
+using WarehouseApplication.Data.Interfaces;
 using WarehouseApplication.Dtos;
 using WarehouseApplication.Models;
 
@@ -11,10 +12,10 @@ namespace WarehouseApplication.Controllers
     [Route("api/[controller]")]
     public class DocumentItemsController : ControllerBase
     {
-        private readonly WarehouseContext _context;
+        private readonly IWarehouseContext _context;
         private readonly IMapper _mapper;
 
-        public DocumentItemsController(WarehouseContext context, IMapper mapper)
+        public DocumentItemsController(IWarehouseContext context, IMapper mapper)
         {
             _context = context;
             _mapper = mapper;
@@ -61,6 +62,18 @@ namespace WarehouseApplication.Controllers
             return Ok(_mapper.Map<DocumentItemDto>(item));
         }
 
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<DocumentItemDto>>> Get()
+        {
+            // Retrieve all document items from the database
+            var items = await _context.DocumentItems.ToListAsync();
+
+            // Map the entities to DTOs
+            var dtos = _mapper.Map<IEnumerable<DocumentItemDto>>(items);
+
+            // Return the list of DTOs
+            return Ok(dtos);
+        }
     }
 
 

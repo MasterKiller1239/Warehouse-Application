@@ -2,8 +2,10 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WarehouseApplication.Data;
+using WarehouseApplication.Data.Interfaces;
 using WarehouseApplication.Dtos;
 using WarehouseApplication.Models;
+using WarehouseApplication.Services.Interfaces;
 
 namespace WarehouseApplication.Controllers
 {
@@ -11,39 +13,48 @@ namespace WarehouseApplication.Controllers
     [Route("api/[controller]")]
     public class ContractorsController : ControllerBase
     {
-        private readonly WarehouseContext _context;
-        private readonly IMapper _mapper;
+        private readonly IContractorService _service;
 
-        public ContractorsController(WarehouseContext context, IMapper mapper)
+        public ContractorsController(IContractorService service)
         {
-            _context = context;
-            _mapper = mapper;
+            _service = service;
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ContractorDto>>> Get() =>
-            Ok(_mapper.Map<IEnumerable<ContractorDto>>(await _context.Contractors.ToListAsync()));
+        public async Task<ActionResult<IEnumerable<ContractorDto>>> Get()
+        {
+            var dtos = await _service.GetAllAsync();
+            return Ok(dtos);
+        }
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult<ContractorDto>> Get(int id)
+        {
+            var dto = await _service.GetByIdAsync(id);
+            if (dto == null) return NotFound();
+            return Ok(dto);
+        }
 
         [HttpPost]
-        public async Task<ActionResult> Post(ContractorDto dto)
+        public async Task<ActionResult<ContractorDto>> Post(ContractorDto dto)
         {
-            var entity = _mapper.Map<Contractor>(dto);
-            _context.Contractors.Add(entity);
-            await _context.SaveChangesAsync();
-            return Ok();
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            var created = await _service.CreateAsync(dto);
+            return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
         }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> Put(int id, ContractorDto dto)
         {
-            if (id != dto.Id) return BadRequest();
-            var entity = await _context.Contractors.FindAsync(id);
-            if (entity == null) return NotFound();
+            if (!ModelState.IsValid) return BadRequest(ModelState);
 
-            _mapper.Map(dto, entity);
-            await _context.SaveChangesAsync();
+            var updated = await _service.UpdateAsync(id, dto);
+            if (!updated) return BadRequest();
+
             return NoContent();
         }
     }
+
 
 }

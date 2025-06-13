@@ -1,10 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
+using WarehouseApplication.Data.Interfaces;
 using WarehouseApplication.Models;
 
 namespace WarehouseApplication.Data
 {
-    public class WarehouseContext : DbContext
+    public class WarehouseContext : DbContext, IWarehouseContext
     {
         public WarehouseContext(DbContextOptions<WarehouseContext> options) : base(options) { }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -37,9 +38,8 @@ namespace WarehouseApplication.Data
                 entity.Property(e => e.DocumentId).HasColumnName("documentid");
             });
         }
-
-        public DbSet<Contractor> Contractors { get; set; }
-        public DbSet<Document> Documents { get; set; }
-        public DbSet<DocumentItem> DocumentItems { get; set; }
+        public virtual DbSet<Contractor> Contractors { get; set; }
+        public virtual DbSet<Document> Documents { get; set; }
+        public virtual DbSet<DocumentItem> DocumentItems { get; set; }
     }
 }

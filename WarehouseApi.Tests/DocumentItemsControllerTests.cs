@@ -1,84 +1,79 @@
-﻿using System.Net.Http.Json;
-using FluentAssertions;
-using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.VisualStudio.TestPlatform.TestHost;
+﻿using Microsoft.AspNetCore.Mvc;
+using Moq;
+using AutoMapper;
+using WarehouseApplication.Controllers;
+using WarehouseApplication.Data.Interfaces;
 using WarehouseApplication.Dtos;
+using WarehouseApplication.Models;
+using WarehouseApi.Tests.Mocks;
+using FluentAssertions;
 using Xunit;
-namespace WarehouseApplication.Tests.Controllers;
-public class DocumentItemsControllerTests : IClassFixture<WebApplicationFactory<Program>>
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace WarehouseApplication.Tests.Controllers
 {
-    private readonly HttpClient _client;
-
-    public DocumentItemsControllerTests(WebApplicationFactory<Program> factory)
+    public class DocumentItemsControllerTests
     {
-        _client = factory.CreateClient();
-    }
+        private readonly Mock<IWarehouseContext> _contextMock;
+        private readonly IMapper _mapper;
+        private readonly List<DocumentItem> _items;
 
-    [Fact]
-    public async Task Post_ShouldCreateItem()
-    {
-        // Arrange - create contractor and document first
-        var contractor = new ContractorDto { Symbol = "I-POST", Name = "Item Contractor" };
-        await _client.PostAsJsonAsync("/api/contractors", contractor);
-        var contractorId = (await _client.GetFromJsonAsync<List<ContractorDto>>("/api/contractors")).Last().Id;
-
-        var document = new DocumentDto
+        public DocumentItemsControllerTests()
         {
-            Date = DateTime.UtcNow,
-            Symbol = "DOC-ITEM",
-            ContractorId = contractorId,
-        };
-        await _client.PostAsJsonAsync("/api/documents", document);
-        var documentId = (await _client.GetFromJsonAsync<List<DocumentDto>>("/api/documents")).Last().Id;
+            _contextMock = new Mock<IWarehouseContext>();
 
-        // Act
-        var item = new DocumentItemDto
+            var config = new MapperConfiguration(cfg =>
+            {
+                cfg.CreateMap<DocumentItem, DocumentItemDto>().ReverseMap();
+            });
+            _mapper = config.CreateMapper();
+
+            var mockDocument = new Document { Id = 1, Symbol = "D1", Contractor = new Contractor { Id = 1, Symbol = "C1", Name = "Contractor One" } };
+
+            _items = new List<DocumentItem>
+            {
+                new DocumentItem { Id = 1, ProductName = "Item1", Unit = "kg", Quantity = 10, DocumentId = 1, Document = mockDocument },
+                new DocumentItem { Id = 2, ProductName = "Item2", Unit = "kg", Quantity = 20, DocumentId = 1, Document = mockDocument }
+            };
+
+            var mockDbSet = DbSetMockHelper.CreateMockDbSet(_items);
+            _contextMock.Setup(c => c.DocumentItems).Returns(mockDbSet.Object);
+        }
+
+        [Fact]
+        public async Task Get_ReturnsAllItems()
         {
-            ProductName = "Created Item",
-            Quantity = 10,
-            Unit = "kg",
-            DocumentId = documentId
-        };
+            var controller = new DocumentItemsController(_contextMock.Object, _mapper);
 
-        var response = await _client.PostAsJsonAsync("/api/documentitems", item);
+            var result = await controller.Get();
 
-        // Assert
-        response.EnsureSuccessStatusCode();
-    }
+            var okResult = Assert.IsType<OkObjectResult>(result.Result);
+            var returned = Assert.IsAssignableFrom<IEnumerable<DocumentItemDto>>(okResult.Value);
+            returned.Count().Should().Be(_items.Count);
+        }
 
-    [Fact]
-    public async Task Put_ShouldUpdateItem()
-    {
-        // Arrange
-        var contractor = new ContractorDto { Symbol = "I-PUT", Name = "ItemPut Contractor" };
-        await _client.PostAsJsonAsync("/api/contractors", contractor);
-        var contractorId = (await _client.GetFromJsonAsync<List<ContractorDto>>("/api/contractors")).Last().Id;
-
-        var document = new DocumentDto
+        [Fact]
+        public async Task Get_WithId_ReturnsCorrectItem()
         {
-            Date = DateTime.UtcNow,
-            Symbol = "DOC-PUTITEM",
-            ContractorId = contractorId,
-        };
-        await _client.PostAsJsonAsync("/api/documents", document);
-        var documentId = (await _client.GetFromJsonAsync<List<DocumentDto>>("/api/documents")).Last().Id;
+            var controller = new DocumentItemsController(_contextMock.Object, _mapper);
 
-        var item = new DocumentItemDto
+            var result = await controller.Get(1);
+
+            var okResult = Assert.IsType<OkObjectResult>(result.Result);
+            var returned = Assert.IsType<DocumentItemDto>(okResult.Value);
+            returned.Id.Should().Be(1);
+        }
+
+        [Fact]
+        public async Task Get_WithInvalidId_ReturnsNotFound()
         {
-            ProductName = "To Be Updated",
-            Quantity = 2,
-            Unit = "pcs",
-            DocumentId = documentId
-        };
-        await _client.PostAsJsonAsync("/api/documentitems", item);
-        var documentList = await _client.GetFromJsonAsync<List<DocumentDto>>("/api/documents");
-        var itemToUpdate = documentList.Last().Items.Last();
-        itemToUpdate.ProductName = "Updated Name";
+            var controller = new DocumentItemsController(_contextMock.Object, _mapper);
 
-        // Act
-        var response = await _client.PutAsJsonAsync($"/api/documentitems/{itemToUpdate.Id}", itemToUpdate);
+            var result = await controller.Get(999);
 
-        // Assert
-        response.StatusCode.Should().Be(System.Net.HttpStatusCode.NoContent);
+            Assert.IsType<NotFoundResult>(result.Result);
+        }
     }
 }

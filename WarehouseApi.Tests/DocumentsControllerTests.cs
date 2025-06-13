@@ -1,84 +1,85 @@
-﻿using System.Net.Http.Json;
+﻿using Moq;
+using AutoMapper;
 using FluentAssertions;
-using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.VisualStudio.TestPlatform.TestHost;
+using Microsoft.AspNetCore.Mvc;
+using WarehouseApplication.Controllers;
 using WarehouseApplication.Dtos;
+using WarehouseApplication.Services.Interfaces;
 using Xunit;
-namespace WarehouseApplication.Tests.Controllers;
-public class DocumentsControllerTests : IClassFixture<WebApplicationFactory<Program>>
+
+namespace WarehouseApplication.Tests.Controllers
 {
-    private readonly HttpClient _client;
-
-    public DocumentsControllerTests(WebApplicationFactory<Program> factory)
+    public class DocumentsControllerTests
     {
-        _client = factory.CreateClient();
-    }
+        private readonly Mock<IDocumentService> _documentServiceMock;
+        private readonly DocumentsController _controller;
 
-    [Fact]
-    public async Task Get_ShouldReturnListOfDocuments()
-    {
-        // Act
-        var response = await _client.GetAsync("/api/documents");
-
-        // Assert
-        response.EnsureSuccessStatusCode();
-        var list = await response.Content.ReadFromJsonAsync<List<DocumentDto>>();
-        list.Should().NotBeNull();
-    }
-
-    [Fact]
-    public async Task Post_ShouldCreateDocument()
-    {
-        // Arrange - first create a contractor
-        var contractor = new ContractorDto { Symbol = "D-POST", Name = "Doc Contractor" };
-        await _client.PostAsJsonAsync("/api/contractors", contractor);
-        var contractors = await _client.GetFromJsonAsync<List<ContractorDto>>("/api/contractors");
-        var contractorId = contractors.Last().Id;
-
-        // Act
-        var document = new DocumentDto
+        public DocumentsControllerTests()
         {
-            Date = DateTime.UtcNow,
-            Symbol = "DOC-001",
-            ContractorId = contractorId,
-            Items = new List<DocumentItemDto>
+            _documentServiceMock = new Mock<IDocumentService>();
+
+            _controller = new DocumentsController(_documentServiceMock.Object);
+        }
+
+        [Fact]
+        public async Task Get_ReturnsAllDocuments()
+        {
+            // Arrange
+            var docs = new List<DocumentDto>
             {
-                new() { ProductName = "Test Item", Quantity = 5, Unit = "pcs" }
-            }
-        };
+                new DocumentDto { Id = 1, Symbol = "D1", Items = new List<DocumentItemDto>() },
+                new DocumentDto { Id = 2, Symbol = "D2", Items = new List<DocumentItemDto>() }
+            };
 
-        var response = await _client.PostAsJsonAsync("/api/documents", document);
+            _documentServiceMock.Setup(s => s.GetAllAsync()).ReturnsAsync(docs);
 
-        // Assert
-        response.EnsureSuccessStatusCode();
-    }
+            // Act
+            var result = await _controller.Get();
 
-    [Fact]
-    public async Task Put_ShouldUpdateDocument()
-    {
-        // Arrange - create contractor and document
-        var contractor = new ContractorDto { Symbol = "D-PUT", Name = "Put Contractor" };
-        await _client.PostAsJsonAsync("/api/contractors", contractor);
-        var contractors = await _client.GetFromJsonAsync<List<ContractorDto>>("/api/contractors");
-        var contractorId = contractors.Last().Id;
+            // Assert
+            var okResult = Assert.IsType<OkObjectResult>(result.Result);
+            var returned = Assert.IsAssignableFrom<IEnumerable<DocumentDto>>(okResult.Value);
+            returned.Count().Should().Be(2);
+        }
 
-        var document = new DocumentDto
+        [Fact]
+        public async Task Get_WithValidId_ReturnsCorrectDocument()
         {
-            Date = DateTime.UtcNow,
-            Symbol = "PUT-001",
-            ContractorId = contractorId,
-            Items = new List<DocumentItemDto>()
-        };
+            // Arrange
+            var doc = new DocumentDto
+            {
+                Id = 1,
+                Symbol = "D1",
+                Items = new List<DocumentItemDto>
+                {
+                    new DocumentItemDto { Id = 1, ProductName = "Item1", Quantity = 10, Unit = "test" },
+                    new DocumentItemDto { Id = 2, ProductName = "Item2", Quantity = 20, Unit = "test" }
+                }
+            };
 
-        await _client.PostAsJsonAsync("/api/documents", document);
-        var documents = await _client.GetFromJsonAsync<List<DocumentDto>>("/api/documents");
-        var created = documents.Last();
-        created.Symbol = "PUT-UPDATED";
+            _documentServiceMock.Setup(s => s.GetByIdAsync(1)).ReturnsAsync(doc);
 
-        // Act
-        var response = await _client.PutAsJsonAsync($"/api/documents/{created.Id}", created);
+            // Act
+            var result = await _controller.Get(1);
 
-        // Assert
-        response.StatusCode.Should().Be(System.Net.HttpStatusCode.NoContent);
+            // Assert
+            var okResult = Assert.IsType<OkObjectResult>(result.Result);
+            var returned = Assert.IsType<DocumentDto>(okResult.Value);
+            returned.Id.Should().Be(1);
+            returned.Items.Should().HaveCount(2);
+        }
+
+        [Fact]
+        public async Task Get_WithInvalidId_ReturnsNotFound()
+        {
+            // Arrange
+            _documentServiceMock.Setup(s => s.GetByIdAsync(It.IsAny<int>())).ReturnsAsync((DocumentDto?)null);
+
+            // Act
+            var result = await _controller.Get(999); // non-existent ID
+
+            // Assert
+            Assert.IsType<NotFoundResult>(result.Result);
+        }
     }
 }

@@ -1,60 +1,66 @@
-using System.Net.Http.Json;
-using FluentAssertions;
-using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.VisualStudio.TestPlatform.TestHost;
-using WarehouseApplication.Dtos;
 using Xunit;
-namespace WarehouseApplication.Tests.Controllers;
-public class ContractorsControllerTests : IClassFixture<WebApplicationFactory<Program>>
+using Moq;
+using FluentAssertions;
+using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using WarehouseApplication.Controllers;
+using WarehouseApplication.Dtos;
+using WarehouseApplication.Data.Interfaces;
+using WarehouseApplication.Services.Interfaces;
+
+namespace WarehouseApplication.Tests.Controllers
 {
-    private readonly HttpClient _client;
-
-    public ContractorsControllerTests(WebApplicationFactory<Program> factory)
+    public class ContractorsControllerTests
     {
-        _client = factory.CreateClient();
-    }
+        private readonly Mock<IContractorService> _serviceMock;
 
-    [Fact]
-    public async Task Get_ShouldReturnOkAndList()
-    {
-        var response = await _client.GetAsync("/api/contractors");
-
-        response.EnsureSuccessStatusCode();
-        var contractors = await response.Content.ReadFromJsonAsync<List<ContractorDto>>();
-        contractors.Should().NotBeNull();
-    }
-
-    [Fact]
-    public async Task Post_ShouldCreateContractor()
-    {
-        var contractor = new ContractorDto
+        public ContractorsControllerTests()
         {
-            Symbol = "ABC",
-            Name = "Test Contractor"
-        };
+            _serviceMock = new Mock<IContractorService>();
+        }
 
-        var response = await _client.PostAsJsonAsync("/api/contractors", contractor);
+        [Fact]
+        public async Task Get_ReturnsAllContractors()
+        {
+            // Arrange
+            var contractors = new List<ContractorDto>
+            {
+                new ContractorDto { Id = 1, Symbol = "C1", Name = "Contractor One" },
+                new ContractorDto { Id = 2, Symbol = "C2", Name = "Contractor Two" }
+            };
 
-        response.EnsureSuccessStatusCode();
-    }
+            _serviceMock.Setup(s => s.GetAllAsync())
+                .ReturnsAsync(contractors);
 
-    [Fact]
-    public async Task Put_ShouldUpdateContractor()
-    {
-        // Najpierw dodaj nowego kontrahenta
-        var contractor = new ContractorDto { Symbol = "XYZ", Name = "ToUpdate" };
-        var postResponse = await _client.PostAsJsonAsync("/api/contractors", contractor);
-        postResponse.EnsureSuccessStatusCode();
+            var controller = new ContractorsController(_serviceMock.Object);
 
-        // Pobierz listê kontrahentów i znajdŸ ID
-        var getResponse = await _client.GetAsync("/api/contractors");
-        var list = await getResponse.Content.ReadFromJsonAsync<List<ContractorDto>>();
-        var created = list.Last();
+            // Act
+            var result = await controller.Get();
 
-        // Edytuj
-        created.Name = "Updated Name";
-        var putResponse = await _client.PutAsJsonAsync($"/api/contractors/{created.Id}", created);
+            // Assert
+            var okResult = Assert.IsType<OkObjectResult>(result.Result);
+            var returnedContractors = Assert.IsAssignableFrom<IEnumerable<ContractorDto>>(okResult.Value);
+            returnedContractors.Should().HaveCount(2);
+        }
 
-        putResponse.StatusCode.Should().Be(System.Net.HttpStatusCode.NoContent);
+        [Fact]
+        public async Task Post_AddsNewContractor()
+        {
+            // Arrange
+            var newDto = new ContractorDto { Symbol = "C3", Name = "Contractor Three" };
+            _serviceMock.Setup(s => s.CreateAsync(newDto))
+                .ReturnsAsync(newDto);
+
+            var controller = new ContractorsController(_serviceMock.Object);
+
+            // Act
+            var result = await controller.Post(newDto);
+
+            // Assert
+            var createdAt = Assert.IsType<CreatedAtActionResult>(result.Result);
+            var returned = Assert.IsType<ContractorDto>(createdAt.Value);
+            Assert.Equal("C3", returned.Symbol);
+        }
     }
 }

@@ -1,0 +1,32 @@
+﻿<Window x:Class="Client.Views.Documents.AddDocumentView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Add Document"
+        Height="300" Width="400"
+        WindowStartupLocation="CenterScreen">
+
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Text="Symbol:" FontWeight="Bold" />
+        <TextBox Grid.Row="0" Margin="100,0,0,5" Text="{Binding Symbol, UpdateSourceTrigger=PropertyChanged}" />
+
+        <TextBlock Text="Date:" FontWeight="Bold" Grid.Row="1" />
+        <DatePicker Grid.Row="1" Margin="100,0,0,5" SelectedDate="{Binding Date}" />
+
+        <TextBlock Text="Contractor:" FontWeight="Bold" Grid.Row="2" />
+        <ComboBox Grid.Row="2" Margin="100,0,0,5"
+                  ItemsSource="{Binding Contractors}"
+                  SelectedItem="{Binding SelectedContractor}"
+                  DisplayMemberPath="Name" />
+
+        <Button Content="Save" Grid.Row="4" Width="100" HorizontalAlignment="Right"
+                Command="{Binding SaveCommand}" Margin="0,10,0,0" />
+    </Grid>
+</Window>

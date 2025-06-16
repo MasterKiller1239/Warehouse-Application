@@ -9,6 +9,7 @@ namespace WarehouseApplication.Services.Interfaces
         Task<ContractorDto?> GetByIdAsync(int id);
         Task<ContractorDto> CreateAsync(ContractorDto dto);
         Task<bool> UpdateAsync(int id, ContractorDto dto);
+        Task<ContractorDto?> GetBySymbolAsync(string symbol);
     }
 
 }

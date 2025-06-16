@@ -1,0 +1,115 @@
+﻿<Window x:Class="Client.Views.DocumentDetails.DocumentDetailsView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:ui="http://schemas.modernwpf.com/2019"
+        Title="Document Details"
+        Height="450"
+        Width="600"
+        ResizeMode="NoResize"
+        WindowStartupLocation="CenterScreen"
+        ui:WindowHelper.UseModernWindowStyle="True"
+        Background="{DynamicResource SystemControlBackgroundAltHighBrush}">
+
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header & Buttons -->
+        <StackPanel Grid.Row="0" Margin="0,0,0,10">
+            <TextBlock Text="Document Details"
+                       FontSize="20"
+                       FontWeight="SemiBold"
+                       Margin="0,0,0,10"
+                       Foreground="#FF883EE4"/>
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Content="Add item"
+                        Command="{Binding AddCommand}" Margin="5"/>
+                <Button Content="Edit item"
+                        Command="{Binding EditCommand}" Margin="5"/>
+            </StackPanel>
+
+            <!-- Details -->
+            <Grid Margin="0,10,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Text="Symbol:" FontWeight="Bold"/>
+                <TextBlock Text="{Binding Symbol}" Grid.Column="1"/>
+
+                <TextBlock Text="Date:" FontWeight="Bold" Grid.Row="1" Margin="0,5,0,0"/>
+                <TextBlock Text="{Binding Date}" Grid.Column="1" Grid.Row="1" Margin="0,5,0,0"/>
+
+                <TextBlock Text="Contractor:" FontWeight="Bold" Grid.Row="2" Margin="0,5,0,0"/>
+                <TextBlock Text="{Binding ContractorName}" Grid.Column="1" Grid.Row="2" Margin="0,5,0,0"/>
+            </Grid>
+        </StackPanel>
+
+        <!-- Items with Scroll and Sorting -->
+        <GroupBox Header="Items" Grid.Row="1" FontWeight="Bold">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <ListView ItemsSource="{Binding Items}"
+                          SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
+                          IsSynchronizedWithCurrentItem="True">
+                    <ListView.View>
+                        <GridView>
+                            <GridViewColumn Header="Product" Width="200" DisplayMemberBinding="{Binding ProductName}">
+                                <GridViewColumn.HeaderTemplate>
+                                    <DataTemplate>
+                                        <Grid>
+                                            <Button Content="Product"
+                                                    Command="{Binding DataContext.SortCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                    CommandParameter="ProductName"
+                                                    Background="Transparent"
+                                                    BorderThickness="0"
+                                                    HorizontalContentAlignment="Left"/>
+                                        </Grid>
+                                    </DataTemplate>
+                                </GridViewColumn.HeaderTemplate>
+                            </GridViewColumn>
+
+                            <GridViewColumn Header="Unit" Width="100" DisplayMemberBinding="{Binding Unit}">
+                                <GridViewColumn.HeaderTemplate>
+                                    <DataTemplate>
+                                        <Grid>
+                                            <Button Content="Unit"
+                                                    Command="{Binding DataContext.SortCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                    CommandParameter="Unit"
+                                                    Background="Transparent"
+                                                    BorderThickness="0"
+                                                    HorizontalContentAlignment="Left"/>
+                                        </Grid>
+                                    </DataTemplate>
+                                </GridViewColumn.HeaderTemplate>
+                            </GridViewColumn>
+
+                            <GridViewColumn Header="Quantity" Width="100" DisplayMemberBinding="{Binding Quantity}">
+                                <GridViewColumn.HeaderTemplate>
+                                    <DataTemplate>
+                                        <Grid>
+                                            <Button Content="Quantity"
+                                                    Command="{Binding DataContext.SortCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                    CommandParameter="Quantity"
+                                                    Background="Transparent"
+                                                    BorderThickness="0"
+                                                    HorizontalContentAlignment="Left"/>
+                                        </Grid>
+                                    </DataTemplate>
+                                </GridViewColumn.HeaderTemplate>
+                            </GridViewColumn>
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+            </ScrollViewer>
+        </GroupBox>
+    </Grid>
+</Window>

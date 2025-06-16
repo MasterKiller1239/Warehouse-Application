@@ -5,6 +5,7 @@ using WarehouseApplication.Data;
 using WarehouseApplication.Data.Interfaces;
 using WarehouseApplication.Dtos;
 using WarehouseApplication.Models;
+using WarehouseApplication.Services;
 using WarehouseApplication.Services.Interfaces;
 
 namespace WarehouseApplication.Controllers
@@ -53,6 +54,15 @@ namespace WarehouseApplication.Controllers
             if (!updated) return BadRequest();
 
             return NoContent();
+        }
+        [HttpGet("by-symbol/{symbol}")]
+        public async Task<ActionResult<ContractorDto>> GetBySymbol(string symbol)
+        {
+            var contractor = await _service.GetBySymbolAsync(symbol);
+            if (contractor == null)
+                return NotFound();
+
+            return Ok(contractor);
         }
     }
 

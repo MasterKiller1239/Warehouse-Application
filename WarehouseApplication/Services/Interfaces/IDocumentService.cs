@@ -8,6 +8,7 @@ namespace WarehouseApplication.Services.Interfaces
         Task<DocumentDto?> GetByIdAsync(int id);
         Task<DocumentDto> CreateAsync(DocumentDto dto);
         Task<bool> UpdateAsync(int id, DocumentDto dto);
+        Task<DocumentDto?> GetBySymbolAsync(string symbol);
     }
 
 

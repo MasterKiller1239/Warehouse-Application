@@ -53,6 +53,32 @@ namespace WarehouseApplication.Services
             await _context.SaveChangesAsync();
             return true;
         }
+        public async Task<DocumentDto?> GetBySymbolAsync(string symbol)
+        {
+            var entity = await _context.Documents
+                .Include(d => d.Contractor)
+                .FirstOrDefaultAsync(d => d.Symbol == symbol);
+
+            if (entity == null)
+                return null;
+
+            return new DocumentDto
+            {
+                Id = entity.Id,
+                Symbol = entity.Symbol,
+                Date = entity.Date,
+                ContractorId = entity.ContractorId,
+                Items = entity.Items?.Select(i => new DocumentItemDto
+                {
+                    Id = i.Id,
+                    DocumentId = i.DocumentId,
+                    ProductName = i.ProductName,
+                    Quantity = i.Quantity,
+                    Unit = i.Unit
+                }).ToList() ?? new List<DocumentItemDto>()
+            };
+        }
+
     }
 
 }

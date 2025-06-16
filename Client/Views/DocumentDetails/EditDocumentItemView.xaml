@@ -1,0 +1,27 @@
+﻿<Window x:Class="Client.Views.DocumentDetails.EditDocumentItemView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Edit Document Item"
+        Height="250" Width="400"
+        WindowStartupLocation="CenterScreen">
+
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Text="Product Name:" FontWeight="Bold" />
+        <TextBox Text="{Binding ProductName, UpdateSourceTrigger=PropertyChanged}" Grid.Row="0" Margin="120,0,0,5"/>
+
+        <TextBlock Text="Unit:" FontWeight="Bold" Grid.Row="1" />
+        <TextBox Text="{Binding Unit, UpdateSourceTrigger=PropertyChanged}" Grid.Row="1" Margin="120,0,0,5"/>
+
+        <TextBlock Text="Quantity:" FontWeight="Bold" Grid.Row="2" />
+        <TextBox Text="{Binding QuantityText, UpdateSourceTrigger=PropertyChanged}" Grid.Row="2" Margin="120,0,0,5"/>
+
+        <Button Content="Save" Command="{Binding SaveCommand}" Grid.Row="3" Width="100" Margin="0,10,0,0" HorizontalAlignment="Right"/>
+    </Grid>
+</Window>

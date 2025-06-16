@@ -50,6 +50,21 @@ namespace WarehouseApplication.Services
             await _context.SaveChangesAsync();
             return true;
         }
+        public async Task<ContractorDto?> GetBySymbolAsync(string symbol)
+        {
+            var contractor = await _context.Contractors
+                .FirstOrDefaultAsync(c => c.Symbol == symbol);
+
+            if (contractor == null)
+                return null;
+
+            return new ContractorDto
+            {
+                Id = contractor.Id,
+                Symbol = contractor.Symbol,
+                Name = contractor.Name
+            };
+        }
     }
 
 }

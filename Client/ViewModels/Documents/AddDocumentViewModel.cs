@@ -119,7 +119,7 @@ namespace Client.ViewModels.Documents
                 var newDocument = new DocumentDto
                 {
                     Symbol = Symbol.Trim(),
-                    Date = Date,
+                    Date = Date.ToUniversalTime(),
                     ContractorId = SelectedContractor.Id,
                     ContractorName = SelectedContractor.Name,
                     Items = new System.Collections.Generic.List<DocumentItemDto>()

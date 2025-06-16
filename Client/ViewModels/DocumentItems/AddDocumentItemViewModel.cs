@@ -42,7 +42,7 @@ public class AddDocumentItemViewModel : INotifyPropertyChanged
         set { _quantityText = value; OnPropertyChanged(); _addCommand.RaiseCanExecuteChanged(); }
     }
 
-    public ICommand AddCommand { get; }
+    public ICommand AddCommand => _addCommand;
     private RelayCommand _addCommand;
     public ICommand CancelCommand { get; }
     public Action? CloseAction { get; set; }

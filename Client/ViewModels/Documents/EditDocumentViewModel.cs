@@ -13,14 +13,15 @@ public class EditDocumentViewModel : INotifyPropertyChanged
 
     public EditDocumentViewModel(IApiClient apiClient, DocumentDto document)
     {
-        _apiClient = apiClient;
-        Document = document;
+        _apiClient = apiClient ?? throw new ArgumentNullException(nameof(apiClient));
+        Document = document ?? throw new ArgumentNullException(nameof(document));
 
         Contractors = new ObservableCollection<ContractorDto>();
         LoadContractorsCommand = new RelayCommand(async () => await LoadContractorsAsync());
         UpdateCommand = new RelayCommand(async () => await UpdateDocumentAsync());
 
         _ = LoadContractorsAsync();
+
     }
 
     public DocumentDto Document { get; }
@@ -39,26 +40,29 @@ public class EditDocumentViewModel : INotifyPropertyChanged
         }
     }
 
-    public ObservableCollection<ContractorDto> Contractors { get; }
+    public ObservableCollection<ContractorDto> Contractors { get; private set; }
 
     public ICommand LoadContractorsCommand { get; }
     public ICommand UpdateCommand { get; }
-
-    private async Task LoadContractorsAsync()
+  
+    public async Task LoadContractorsAsync()
     {
         var contractors = await _apiClient.GetContractorsAsync();
 
-        Application.Current.Dispatcher.Invoke(() =>
+
+        await Application.Current.Dispatcher.InvokeAsync(() =>
         {
             Contractors.Clear();
-            foreach (var c in contractors)
-                Contractors.Add(c);
+            foreach (var contractor in contractors)
+            {
+                Contractors.Add(contractor);
+            }
 
             SelectedContractor = Contractors.FirstOrDefault(c => c.Id == Document.ContractorId);
         });
     }
 
-    private async Task UpdateDocumentAsync()
+    public async Task UpdateDocumentAsync()
     {
         if (SelectedContractor == null)
         {
@@ -72,9 +76,8 @@ public class EditDocumentViewModel : INotifyPropertyChanged
             return;
         }
 
-        Document.ContractorId = SelectedContractor.Id;
-        Document.ContractorName = SelectedContractor.Name;
-
+        Document.Contractor = SelectedContractor;
+        Document.Date = Document.Date.ToUniversalTime();
         try
         {
             await _apiClient.UpdateDocumentAsync(Document);

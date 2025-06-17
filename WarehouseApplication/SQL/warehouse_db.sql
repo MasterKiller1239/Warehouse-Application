@@ -25,7 +25,6 @@ CREATE TABLE Document_Items (
         ON DELETE CASCADE
 );
 
--- Przykładowe dane
 
 INSERT INTO Contractors (Symbol, Name) VALUES
   ('KON001', 'Firma Alpha Sp. z o.o.'),

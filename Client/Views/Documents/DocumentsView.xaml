@@ -3,7 +3,16 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Documents" Height="450" Width="600"
         WindowStartupLocation="CenterScreen">
-
+    <Window.Resources>
+        <Style x:Key="SortButton" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+    </Window.Resources>
     <Grid Margin="10">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -23,7 +32,10 @@
                         <GridViewColumn.HeaderTemplate>
                             <DataTemplate>
                                 <Grid>
-                                    <TextBlock Text="Symbol" Cursor="Hand" MouseLeftButtonUp="GridViewColumnHeader_Click"/>
+                                    <Button Content="Symbol"
+                    Command="{Binding DataContext.SortCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                    CommandParameter="Symbol"
+                    Style="{StaticResource SortButton}" />
                                 </Grid>
                             </DataTemplate>
                         </GridViewColumn.HeaderTemplate>
@@ -33,17 +45,23 @@
                         <GridViewColumn.HeaderTemplate>
                             <DataTemplate>
                                 <Grid>
-                                    <TextBlock Text="Date" Cursor="Hand" MouseLeftButtonUp="GridViewColumnHeader_Click"/>
+                                    <Button Content="Symbol"
+                    Command="{Binding DataContext.SortCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                    CommandParameter="Symbol"
+                    Style="{StaticResource SortButton}" />
                                 </Grid>
                             </DataTemplate>
                         </GridViewColumn.HeaderTemplate>
                     </GridViewColumn>
 
-                    <GridViewColumn Header="Contractor" Width="200" DisplayMemberBinding="{Binding ContractorName}">
+                    <GridViewColumn Header="Contractor" Width="200" DisplayMemberBinding="{Binding Contractor.Name}">
                         <GridViewColumn.HeaderTemplate>
                             <DataTemplate>
                                 <Grid>
-                                    <TextBlock Text="Contractor" Cursor="Hand" MouseLeftButtonUp="GridViewColumnHeader_Click"/>
+                                    <Button Content="Contractor"
+                    Command="{Binding DataContext.SortCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                    CommandParameter="ContractorName"
+                    Style="{StaticResource SortButton}" />
                                 </Grid>
                             </DataTemplate>
                         </GridViewColumn.HeaderTemplate>

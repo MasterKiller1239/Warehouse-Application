@@ -11,7 +11,7 @@ namespace Client.Dtos
         public string Symbol { get; set; } = string.Empty;
         public DateTime Date { get; set; }
         public int ContractorId { get; set; }
-        public string ContractorName { get; set; } = string.Empty;
+        public ContractorDto? Contractor { get; set; }
 
         // List of document items (products, quantities, etc.)
         public List<DocumentItemDto> Items { get; set; } = new();

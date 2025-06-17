@@ -13,7 +13,7 @@ namespace Client.Views.Documents
             InitializeComponent();
             _viewModel = new EditDocumentViewModel(apiClient, document);
             _viewModel.RequestClose += (s, e) => this.Close();
-            this.DataContext = _viewModel;
+            DataContext = _viewModel;
         }
     }
 }

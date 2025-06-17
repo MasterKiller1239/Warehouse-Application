@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using WarehouseApplication.Dtos;
 using WarehouseApplication.Services.Interfaces;
 
@@ -39,9 +40,26 @@ namespace WarehouseApplication.Controllers
             {
                 return Conflict($"A document with symbol '{dto.Symbol}' already exists.");
             }
+            try
+            {
+                if (dto.ContractorId <= 0)
+                {
+                    return BadRequest("Contractor ID must be provided");
+                }
 
-            var created = await _documentService.CreateAsync(dto);
-            return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
+                var created = await _documentService.CreateAsync(dto);
+
+                return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+
         }
 
         [HttpPut("{id}")]

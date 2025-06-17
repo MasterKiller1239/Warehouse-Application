@@ -121,8 +121,8 @@ namespace Client.ViewModels.Documents
                     Symbol = Symbol.Trim(),
                     Date = Date.ToUniversalTime(),
                     ContractorId = SelectedContractor.Id,
-                    ContractorName = SelectedContractor.Name,
-                    Items = new System.Collections.Generic.List<DocumentItemDto>()
+                    Contractor = SelectedContractor,
+                    Items = new List<DocumentItemDto>()
                 };
 
                 await _apiClient.AddDocumentAsync(newDocument);

@@ -1,44 +1,73 @@
 ﻿<Window x:Class="Client.Views.Main.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Warehouse Client" Height="350" Width="550"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        Title="Warehouse Client"
+        Height="350" 
+        Width="550"
         WindowStartupLocation="CenterScreen"
-        Background="#F3F3F3">
-    <Grid>
+         Background="{DynamicResource MaterialDesign.Brush.Primary.Light}"
+        
+        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+        TextElement.FontWeight="Regular"
+        TextElement.FontSize="13"
+        FontFamily="{DynamicResource MaterialDesignFont}">
+
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Light.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignColors;component/Themes/Recommended/Primary/MaterialDesignColor.Indigo.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+            <Style TargetType="Button" BasedOn="{StaticResource MaterialDesignOutlinedButton}">
+                <Setter Property="Margin" Value="8,0,0,0"/>
+                <Setter Property="Width" Value="100"/>
+                <Setter Property="materialDesign:ButtonAssist.CornerRadius" Value="4"/>
+            </Style>
+            <Style x:Key="MaterialDesignPrimaryButton" TargetType="Button" BasedOn="{StaticResource MaterialDesignRaisedButton}">
+                <Setter Property="FontSize" Value="16"/>
+                <Setter Property="Margin" Value="16"/>
+                <Setter Property="Padding" Value="24,12"/>
+                <Setter Property="materialDesign:ButtonAssist.CornerRadius" Value="8"/>
+                <Setter Property="MinWidth" Value="120"/>
+                <Setter Property="MinHeight" Value="48"/>
+                <Setter Property="Foreground" Value="{DynamicResource MaterialDesignLightBackground}"/>
+            </Style>
+
+            <Style x:Key="WindowTitleText" TargetType="TextBlock">
+                <Setter Property="FontSize" Value="24"/>
+                <Setter Property="FontWeight" Value="Medium"/>
+                <Setter Property="Margin" Value="0,16"/>
+                <Setter Property="HorizontalAlignment" Value="Center"/>
+                <Setter Property="Foreground" Value="{DynamicResource PrimaryHueMidBrush}"/>
+            </Style>
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <Grid Background="{DynamicResource MaterialDesign.Brush.Primary.Light}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <TextBlock Text="Warehouse System"
-                   FontSize="24"
-                   FontWeight="Bold"
-                   Foreground="#333"
-                   HorizontalAlignment="Center"
-                   Margin="0,20,0,20" />
+        <!-- Header -->
+        <TextBlock Text="Warehouse System" 
+                   Style="{StaticResource WindowTitleText}"/>
 
-        <UniformGrid Rows="1" Columns="2" Grid.Row="1" Margin="20">
-            <Button Content="Dokumenty przyjęć"
-                    FontSize="16"
-                    Padding="10"
-                    Margin="10"
-                    Background="#4CAF50"
-                    Foreground="White"
-                    BorderBrush="Transparent"
-                    Cursor="Hand"
-                    Click="OpenDocumentsView"
-                    />
+        <!-- Action Buttons -->
+        <UniformGrid Grid.Row="1" 
+                     Rows="1" 
+                     Columns="2" 
+                     Margin="32">
+            <Button Content="Documents" 
+                    Style="{StaticResource MaterialDesignPrimaryButton}"
+                    Background="{DynamicResource PrimaryHueMidBrush}"
+                    Click="OpenDocumentsView"/>
 
-            <Button Content="Kontrahenci"
-                    FontSize="16"
-                    Padding="10"
-                    Margin="10"
-                    Background="#2196F3"
-                    Foreground="White"
-                    BorderBrush="Transparent"
-                    Cursor="Hand"
-                    Click="OpenContractorsView"
-                    />
+            <Button Content="Contractors" 
+                    Style="{StaticResource MaterialDesignPrimaryButton}"
+                    Background="{DynamicResource SecondaryHueMidBrush}"
+                    Click="OpenContractorsView"/>
         </UniformGrid>
     </Grid>
 </Window>

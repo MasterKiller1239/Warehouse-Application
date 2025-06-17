@@ -29,7 +29,7 @@ public class DocumentDetailsViewModel : INotifyPropertyChanged
 
     public string Symbol => _document.Symbol;
     public string Date => _document.Date.ToShortDateString();
-    public string ContractorName => _document.ContractorName;
+    public string ContractorName => _document.Contractor.Name;
     public ICommand SortCommand { get; }
 
     private string? _currentSortColumn;

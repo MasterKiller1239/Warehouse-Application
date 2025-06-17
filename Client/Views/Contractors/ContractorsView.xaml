@@ -2,21 +2,118 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="clr-namespace:Client.ViewModels.Contractors"
-        Title="Contractors" Height="400" Width="600">
-    <Grid Margin="10">
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+        TextElement.FontWeight="Regular"
+        TextElement.FontSize="13"
+        TextOptions.TextFormattingMode="Ideal"
+        TextOptions.TextRenderingMode="Auto"
+       Background="{DynamicResource MaterialDesign.Brush.Primary.Light}"
+        Title="Contractors Management" 
+        Height="500" 
+        Width="800"
+        WindowStartupLocation="CenterScreen"
+        FontFamily="Segoe UI">
+
+    <Window.Resources>
+        <!-- Modern ListBox Style -->
+        <Style x:Key="ModernListBoxStyle" TargetType="ListBox" BasedOn="{StaticResource MaterialDesignListBox}">
+            <Setter Property="Background" Value="{DynamicResource MaterialDesignPaper}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource MaterialDesignDivider}"/>
+            <Setter Property="BorderThickness" Value="0 0 0 1"/>
+            <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled"/>
+            <Setter Property="ItemContainerStyle">
+                <Setter.Value>
+                    <Style TargetType="ListBoxItem" BasedOn="{StaticResource MaterialDesignListBoxItem}">
+                        <Setter Property="Padding" Value="12 8"/>
+                        <Setter Property="Background" Value="Transparent"/>
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="{DynamicResource MaterialDesignListItemMouseOver}"/>
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter Property="Background" Value="{DynamicResource MaterialDesignSelection}"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Modern Button Style -->
+        <Style x:Key="ModernActionButton" TargetType="Button" BasedOn="{StaticResource MaterialDesignRaisedButton}">
+            <Setter Property="Width" Value="120"/>
+            <Setter Property="Height" Value="36"/>
+            <Setter Property="Margin" Value="8 0 0 0"/>
+            <Setter Property="materialDesign:ButtonAssist.CornerRadius" Value="4"/>
+            <Setter Property="FontSize" Value="14"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid Margin="16">
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <ListBox ItemsSource="{Binding Contractors}" 
-                 SelectedItem="{Binding SelectedContractor}"
-                 DisplayMemberPath="Name"
-                 Grid.Row="0" />
+        <!-- Header -->
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0 0 0 16">
+            <materialDesign:PackIcon Kind="AccountGroup" Width="24" Height="24" Margin="0 0 8 0"/>
+            <TextBlock Text="Contractors Management" 
+                       FontSize="20" 
+                       FontWeight="SemiBold"
+                       VerticalAlignment="Center"/>
+        </StackPanel>
 
-        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
-            <Button Content="Add" Command="{Binding AddCommand}" Width="80" Margin="0,0,10,0"/>
-            <Button Content="Edit" Command="{Binding EditCommand}" Width="80"/>
+        <!-- ListBox with search and filter -->
+        <DockPanel Grid.Row="1">
+            <!-- Search Box -->
+            <TextBox DockPanel.Dock="Top" 
+                     materialDesign:HintAssist.Hint="Search contractors..."
+                     Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                     Margin="0 0 0 12"
+                     Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}">
+                <TextBox.InputBindings>
+                    <KeyBinding Key="Enter" Command="{Binding SearchCommand}"/>
+                </TextBox.InputBindings>
+            </TextBox>
+
+            <!-- Contractors List -->
+            <ListBox ItemsSource="{Binding Contractors}" 
+                     SelectedItem="{Binding SelectedContractor}"
+                     Style="{StaticResource ModernListBoxStyle}"
+                     DisplayMemberPath="Name"
+                     ScrollViewer.VerticalScrollBarVisibility="Auto"/>
+        </DockPanel>
+
+        <!-- Action Buttons -->
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0 16 0 0">
+            <Button Content="ADD NEW" 
+                    Command="{Binding AddCommand}"
+                   >
+                <Button.ContentTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal">
+                            <materialDesign:PackIcon Kind="Plus" Width="16" Height="16" Margin="0 0 4 0"/>
+                            <TextBlock Text="{Binding}"/>
+                        </StackPanel>
+                    </DataTemplate>
+                </Button.ContentTemplate>
+            </Button>
+
+            <Button Content="EDIT" 
+                    Command="{Binding EditCommand}"
+                    >
+                <Button.ContentTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal">
+                            <materialDesign:PackIcon Kind="Pencil" Width="16" Height="16" Margin="0 0 4 0"/>
+                            <TextBlock Text="{Binding}"/>
+                        </StackPanel>
+                    </DataTemplate>
+                </Button.ContentTemplate>
+            </Button>
         </StackPanel>
     </Grid>
 </Window>

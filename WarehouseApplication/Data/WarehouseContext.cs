@@ -22,10 +22,15 @@ namespace WarehouseApplication.Data
             modelBuilder.Entity<Document>(entity =>
             {
                 entity.ToTable("documents");
+                entity.HasKey(d => d.Id);
                 entity.Property(e => e.Id).HasColumnName("id");
                 entity.Property(e => e.Date).HasColumnName("date");
                 entity.Property(e => e.Symbol).HasColumnName("symbol");
                 entity.Property(e => e.ContractorId).HasColumnName("contractorid");
+                entity.HasOne(d => d.Contractor)
+                        .WithMany()
+                        .HasForeignKey(d => d.ContractorId)
+                        .OnDelete(DeleteBehavior.Restrict);
             });
 
             modelBuilder.Entity<DocumentItem>(entity =>

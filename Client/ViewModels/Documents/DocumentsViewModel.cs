@@ -72,7 +72,7 @@ namespace Client.ViewModels.Documents
         {
             var docs = await _apiClient.GetDocumentsAsync();
 
-            Application.Current.Dispatcher.Invoke(() =>
+            await  Application.Current.Dispatcher.InvokeAsync(() =>
             {
                 Documents.Clear();
                 foreach (var d in docs)
@@ -109,7 +109,7 @@ namespace Client.ViewModels.Documents
                 MessageBox.Show("Please select a document to edit.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
-        private void SortDocuments(string columnName)
+        public void SortDocuments(string columnName)
         {
             if (string.IsNullOrEmpty(columnName))
                 return;

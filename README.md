@@ -99,4 +99,3 @@ Tests/ # Unit tests for ViewModels
 - ✅ ViewModel unit tests with Moq
 - ✅ `IMessageService` to avoid MessageBox in tests
 - ✅ Commands and `CanExecute` logic covered
-- ✅ Modal window creation abstracted via `IWindowFactory`

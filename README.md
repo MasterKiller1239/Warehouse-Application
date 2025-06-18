@@ -1,104 +1,102 @@
-📦 WarehouseApplication – ASP.NET Core Web API for Warehouse Management
+# 📦 WarehouseApplication – Inventory Management System (.NET 8 + WPF + PostgreSQL)
 
-🧾 Description
+## 🧾 Description
 
-WarehouseApplication is a web-based inventory management system built with ASP.NET Core Web API and PostgreSQL. It provides a clean and scalable backend architecture for managing warehouse documents, contractors, and individual items within goods receipts.
+WarehouseApplication is a full-stack inventory management system consisting of:
 
-This project showcases good software engineering practices like Clean Architecture, SOLID principles, AutoMapper, EF Core with interfaces for testability, and Swagger for API documentation.
+- A clean and scalable ASP.NET Core Web API backend
+- A modern WPF desktop client for managing contractors, warehouse documents, and items
 
-🛠️ Tech Stack
+The project demonstrates clean software architecture, testable layers, and a user-friendly desktop interface connected to a real-time backend.
 
-.NET 8 / ASP.NET Core Web API
+## 🖥️ Client (WPF Desktop App)
 
-PostgreSQL (via Entity Framework Core)
+The WPF client provides a desktop UI for managing:
+- Contractors
+- Documents (e.g. goods received)
+- Items inside documents
 
-AutoMapper (for mapping between DTOs and Entities)
+It uses:
+- MVVM architecture for testability and separation of concerns
+- REST API integration via injected `IApiClient`
+- A testable `IMessageService` abstraction (instead of MessageBox in unit tests)
+- Command pattern (via `RelayCommand`) for all interactions
+- Support for modal windows (Add/Edit) via a central `IWindowFactory`
 
-XUnit + Moq + FluentAssertions (for unit testing)
+## 🛠️ Tech Stack
 
-Swagger / Swashbuckle (for API documentation)
+**Backend:**
+- .NET 8 / ASP.NET Core Web API
+- PostgreSQL (via Entity Framework Core)
+- AutoMapper (for DTO ↔ Entity mapping)
+- Swagger / Swashbuckle (for API docs)
+- XUnit + Moq + FluentAssertions (unit tests)
+- Clean Architecture + SOLID Principles
+- Layered design (Controllers, Services, Repositories)
 
-Clean Architecture principles
+**Frontend (Client):**
+- WPF (Windows Presentation Foundation)
+- MVVM Pattern
+- REST API integration via `IApiClient`
+- ViewModel unit tests with mocked services
+- `ICommand`, `INotifyPropertyChanged`, event-based dialogs
 
-Dependency Injection
+## 📚 Main Features
 
-📚 Main Features
+### ✅ Backend:
+- CRUD for Contractors, Documents, and Document Items
+- DTO-based transport layer
+- Swagger UI for testing
+- Testable and layered architecture
 
-CRUD operations for:
+### ✅ Frontend (WPF Client):
+- Manage contractors and goods receipts with a desktop interface
+- Add/edit documents and items with modal dialogs
+- UI testable logic via ViewModels
+- Dependency injection support
+- MessageBox replaced by `IMessageService` (mockable in tests)
+- `IWindowFactory` for decoupled window creation
 
-Contractors
+## 📁 Project Structure
 
-Documents (e.g. delivery receipts)
+**Backend – WarehouseApplication/**
+Controllers/ # API endpoints
+Services/ # Business logic
+└── Interfaces/ # Service interfaces
+Data/ # EF Core DbContext
+└── Interfaces/ # IWarehouseContext abstraction
+Dtos/ # DTOs
+Models/ # Entity classes
+Tests/ # XUnit, Moq-based unit tests
+**Client – Client/**
+ViewModels/ # MVVM ViewModels
+Views/ # WPF Windows (Add/Edit)
+Services/ # ApiClient and MessageService
+Utilities/ # Helpers (e.g., RelayCommand)
+Factories/ # IWindowFactory for modal dialogs
+Tests/ # Unit tests for ViewModels
 
-Document items (products inside documents)
+## 🔗 Sample API Endpoints
 
-Structured DTO usage to separate domain and transport layers
+| Endpoint                              | Method | Description                      |
+|---------------------------------------|--------|----------------------------------|
+| `/api/contractors`                    | GET    | List all contractors            |
+| `/api/contractors/{id}`               | GET    | Get contractor by ID            |
+| `/api/documents`                      | GET    | List all documents              |
+| `/api/documents/{id}`                 | GET    | Get document with items         |
+| `/api/documentitems/by-document/{id}` | GET    | List items for a document       |
+| `/api/documentitems`                  | POST   | Add an item to a document       |
 
-Testable architecture – logic extracted into services/interfaces for unit testing
+## � Testing
 
-Separation of concerns:
+**Backend:**
+- ✅ XUnit for logic testing
+- ✅ Moq for mocking services/repositories
+- ✅ FluentAssertions for readable assertions
+- ✅ Focus on services and controller logic
 
-Controllers → thin, responsible for HTTP
-
-Services → business logic
-
-Repositories/DbContext → data access
-
-WarehouseApplication/
-
-│
-
-├── Controllers/              # API endpoints (Documents, Contractors, DocumentItems)
-
-├── Services/                 # Business logic (DocumentService, ContractorService etc.)
-
-│   └── Interfaces/           # Interfaces for services (for DI and testing)
-
-├── Data/                     # EF Core DbContext and interfaces
-
-│   └── Interfaces/           # IWarehouseContext abstraction
-
-├── Dtos/                     # Data Transfer Objects
-
-├── Models/                   # Entity classes (mapped to database)
-
-├── Tests/                    # Unit tests (XUnit, Moq)
-
-│   └── Mocks/                # Mocked DbSets for test isolation
-
-└── Program.cs                # Main entry point, DI setup and middleware
-
-
-✅ Sample API Endpoints
-
-Endpoint	Method	Description
-
-/api/contractors	GET	List all contractors
-
-/api/contractors/{id}	GET	Get contractor by ID
-
-/api/documents	GET	List all documents with items
-
-/api/documents/{id}	GET	Get document by ID with items
-
-/api/documentitems/by-document/{id}	GET	List items for a specific document
-
-/api/documentitems	POST	Add a document item
-
-
-🧪 Testing
-All controllers are unit-tested using:
-
-XUnit – testing framework
-
-Moq – mocking dependencies
-
-FluentAssertions – for expressive assertions
-
-Test coverage includes:
-
-Get endpoints
-
-Valid/invalid scenarios
-
-Entity-to-DTO mapping verification
+**Frontend:**
+- ✅ ViewModel unit tests with Moq
+- ✅ `IMessageService` to avoid MessageBox in tests
+- ✅ Commands and `CanExecute` logic covered
+- ✅ Modal window creation abstracted via `IWindowFactory`

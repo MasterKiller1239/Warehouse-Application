@@ -20,14 +20,14 @@ namespace Client.ViewModels.DocumentItems
         private string _productName;
         private string _unit;
         private string _quantityText;
-
+        private readonly IMessageService _messageService;
         public event PropertyChangedEventHandler? PropertyChanged;
 
-        public EditDocumentItemViewModel(DocumentItemDto item, IApiClient apiClient)
+        public EditDocumentItemViewModel(DocumentItemDto item, IApiClient apiClient, IMessageService messageService)
         {
             _item = item;
             _apiClient = apiClient;
-
+            _messageService = messageService;
             ProductName = _item.ProductName;
             Unit = _item.Unit;
             QuantityText = _item.Quantity.ToString(CultureInfo.InvariantCulture);
@@ -79,19 +79,19 @@ namespace Client.ViewModels.DocumentItems
         {
             if (string.IsNullOrWhiteSpace(ProductName))
             {
-                MessageBox.Show("Product name is required.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                _messageService.ShowWarning("Product name is required.", "Validation");
                 return;
             }
 
             if (string.IsNullOrWhiteSpace(Unit))
             {
-                MessageBox.Show("Unit is required.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                _messageService.ShowWarning("Unit is required.", "Validation");
                 return;
             }
 
             if (!decimal.TryParse(QuantityText, NumberStyles.Number, CultureInfo.InvariantCulture, out decimal quantity) || quantity <= 0)
             {
-                MessageBox.Show("Please enter a valid positive number for quantity.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                _messageService.ShowWarning("Please enter a valid positive number for quantity.", "Validation");
                 return;
             }
 
@@ -102,14 +102,12 @@ namespace Client.ViewModels.DocumentItems
             try
             {
                 await _apiClient.UpdateDocumentItemAsync(_item);
-                MessageBox.Show("Item updated successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
-
-                // Zamknięcie okna po udanym zapisie, ale to już zrobi View — więc wywołaj event
+                _messageService.ShowInfo("Item updated successfully.", "Success");
                 RequestClose?.Invoke(this, EventArgs.Empty);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"An error occurred while updating the item: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                _messageService.ShowError($"An error occurred while updating the item: {ex.Message}", "Failure");
             }
         }
 

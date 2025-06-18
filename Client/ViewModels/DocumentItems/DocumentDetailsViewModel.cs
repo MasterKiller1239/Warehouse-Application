@@ -12,10 +12,11 @@ using System.Windows.Input;
 public class DocumentDetailsViewModel : INotifyPropertyChanged
 {
     private readonly IApiClient _apiClient;
-
-    public DocumentDetailsViewModel(DocumentDto document, IApiClient apiClient, Window window)
+    private readonly IMessageService _messageService;
+    public DocumentDetailsViewModel(DocumentDto document, IApiClient apiClient, Window window, IMessageService messageService)
     {
         _apiClient = apiClient;
+        _messageService = messageService;
 
         _document = document;
         Items = new ObservableCollection<DocumentItemDto>(document.Items ?? new());
@@ -63,7 +64,7 @@ public class DocumentDetailsViewModel : INotifyPropertyChanged
 
     private async void OpenAddItem()
     {
-        var addView = new AddDocumentItemView(_document.Id, _apiClient);
+        var addView = new AddDocumentItemView(_document.Id, _apiClient,_messageService);
         addView.ShowDialog();
 
         var updated = await _apiClient.GetDocumentAsync(_document.Id);
@@ -75,7 +76,7 @@ public class DocumentDetailsViewModel : INotifyPropertyChanged
     {
         if (SelectedItem is null) return;
 
-        var editView = new EditDocumentItemView(SelectedItem, _apiClient);
+        var editView = new EditDocumentItemView(SelectedItem, _apiClient, _messageService);
         editView.ShowDialog();
 
         var updated = await _apiClient.GetDocumentAsync(_document.Id);

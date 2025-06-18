@@ -19,11 +19,11 @@ namespace Client.Views.Documents
 {
     public partial class AddDocumentView : Window
     {
-        public AddDocumentView(IApiClient apiClient)
+        public AddDocumentView(IApiClient apiClient, IMessageService messageService)
         {
             InitializeComponent();
 
-            var vm = new AddDocumentViewModel(apiClient);
+            var vm = new AddDocumentViewModel(apiClient, messageService);
             vm.RequestClose += (s, e) => this.Close();
 
             DataContext = vm;

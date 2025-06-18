@@ -2,24 +2,17 @@
 using Client.Services.Interfaces;
 using Client.ViewModels.Contractors;
 using Moq;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Threading.Tasks;
-using Xunit;
-
 namespace Client.Tests.ViewModels.Contractors
 {
     public class ContractorsViewModelTests
     {
         private readonly Mock<IApiClient> _apiClientMock;
         private readonly ContractorsViewModel _viewModel;
-
+        private readonly Mock<IMessageService> _messageServiceMock;
         public ContractorsViewModelTests()
         {
             _apiClientMock = new Mock<IApiClient>();
-
-            // Domyślna lista kontrahentów do testów
+            _messageServiceMock = new Mock<IMessageService>();
             _apiClientMock.Setup(x => x.GetContractorsAsync())
                 .ReturnsAsync(new List<ContractorDto>
                 {
@@ -27,7 +20,7 @@ namespace Client.Tests.ViewModels.Contractors
                     new ContractorDto { Id = 2, Name = "Globex" }
                 });
 
-            _viewModel = new ContractorsViewModel(_apiClientMock.Object);
+            _viewModel = new ContractorsViewModel(_apiClientMock.Object, _messageServiceMock.Object);
         }
 
         [Fact]

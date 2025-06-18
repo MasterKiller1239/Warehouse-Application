@@ -1,6 +1,8 @@
 ﻿using Client.Dtos;
 using Client.Services.Interfaces;
 using Client.Utilities;
+using Client.ViewModels.Contractors;
+using Client.Views.Contractors;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
@@ -10,16 +12,17 @@ using System.Windows.Input;
 public class EditDocumentViewModel : INotifyPropertyChanged
 {
     private readonly IApiClient _apiClient;
-
-    public EditDocumentViewModel(IApiClient apiClient, DocumentDto document)
+    public ICommand AddContractorCommand { get; }
+    private readonly IMessageService _messageService;
+    public EditDocumentViewModel(IApiClient apiClient, DocumentDto document, IMessageService messageService)
     {
         _apiClient = apiClient ?? throw new ArgumentNullException(nameof(apiClient));
         Document = document ?? throw new ArgumentNullException(nameof(document));
-
+        _messageService = messageService;
         Contractors = new ObservableCollection<ContractorDto>();
         LoadContractorsCommand = new RelayCommand(async () => await LoadContractorsAsync());
         UpdateCommand = new RelayCommand(async () => await UpdateDocumentAsync());
-
+        AddContractorCommand = new RelayCommand(async () => await OpenAddContractorDialog());
         _ = LoadContractorsAsync();
 
     }
@@ -88,6 +91,19 @@ public class EditDocumentViewModel : INotifyPropertyChanged
         catch (Exception ex)
         {
             MessageBox.Show($"Error updating document: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+    private async Task OpenAddContractorDialog()
+    {
+        var window = new AddContractorView(_apiClient,_messageService);
+        if (window.ShowDialog() == true)
+        {
+            if (window.DataContext is IContractorResultProvider provider && provider.NewContractor is ContractorDto newContractor)
+            {
+
+                await LoadContractorsAsync();
+                SelectedContractor = Contractors.Where(contractor => contractor.Name == newContractor.Name).FirstOrDefault();
+            }
         }
     }
 

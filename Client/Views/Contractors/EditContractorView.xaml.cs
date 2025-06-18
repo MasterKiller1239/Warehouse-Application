@@ -7,10 +7,10 @@ namespace Client.Views.Contractors
 {
     public partial class EditContractorView : Window
     {
-        public EditContractorView(IApiClient apiClient, ContractorDto contractor)
+        public EditContractorView(IApiClient apiClient, ContractorDto contractor, IMessageService messageService)
         {
             InitializeComponent();
-            var vm = new EditContractorViewModel(apiClient, contractor, this);
+            var vm = new EditContractorViewModel(apiClient, contractor, this, messageService);
             vm.CloseAction = Close;
             DataContext = vm;
         }

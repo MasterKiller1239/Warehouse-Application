@@ -18,10 +18,8 @@ namespace Client
         {
             var serviceCollection = new ServiceCollection();
 
-            // Rejestracja ApiClient i innych serwisów
             serviceCollection.AddHttpClient<IApiClient, ApiClient>();
-
-            // Rejestracja widoków - jeśli chcesz też wstrzykiwać do nich zależności
+            serviceCollection.AddSingleton<IMessageService, MessageBoxService>();
             serviceCollection.AddTransient<DocumentsView>();
             serviceCollection.AddTransient<ContractorsView>();
 

@@ -81,10 +81,24 @@
 
             <!-- Contractors List -->
             <ListBox ItemsSource="{Binding Contractors}" 
-                     SelectedItem="{Binding SelectedContractor}"
-                     Style="{StaticResource ModernListBoxStyle}"
-                     DisplayMemberPath="Name"
-                     ScrollViewer.VerticalScrollBarVisibility="Auto"/>
+         SelectedItem="{Binding SelectedContractor}"
+         Style="{StaticResource ModernListBoxStyle}"
+         ScrollViewer.VerticalScrollBarVisibility="Auto">
+
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Grid Margin="4">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Text="{Binding Name}" Grid.Column="0" />
+                            <TextBlock Text="{Binding Symbol}" Grid.Column="1" Margin="10,0,0,0" Foreground="Gray"/>
+                        </Grid>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
         </DockPanel>
 
         <!-- Action Buttons -->

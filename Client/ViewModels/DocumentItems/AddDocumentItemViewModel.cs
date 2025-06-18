@@ -11,12 +11,12 @@ public class AddDocumentItemViewModel : INotifyPropertyChanged
 {
     private readonly int _documentId;
     private readonly IApiClient _apiClient;
-
-    public AddDocumentItemViewModel(int documentId, IApiClient apiClient, Window window)
+    private readonly IMessageService _messageService;
+    public AddDocumentItemViewModel(int documentId, IApiClient apiClient, Window window, IMessageService messageService)
     {
         _documentId = documentId;
         _apiClient = apiClient;
-
+        _messageService = messageService;
         _addCommand = new RelayCommand(async () => await AddItemAsync(), CanAdd);
         CancelCommand = new RelayCommand(() => CloseAction?.Invoke());
     }
@@ -69,12 +69,12 @@ public class AddDocumentItemViewModel : INotifyPropertyChanged
         try
         {
             await _apiClient.AddDocumentItemAsync(item);
-            MessageBox.Show("Item added successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+            _messageService.ShowInfo("Item added successfully.", "Success");
             CloseAction?.Invoke();
         }
         catch (Exception ex)
         {
-            MessageBox.Show($"An error occurred while adding the item: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            _messageService.ShowError($"An error occurred while adding the item: {ex.Message}", "Failure");
         }
     }
 

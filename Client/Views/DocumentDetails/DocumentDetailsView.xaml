@@ -127,7 +127,7 @@
                                 </GridViewColumn.CellTemplate>
                             </GridViewColumn>
 
-                            <GridViewColumn Header="Quantity" Width="100">
+                            <GridViewColumn Header="Quantity" Width="120">
                                 <GridViewColumn.HeaderTemplate>
                                     <DataTemplate>
                                         <Button Content="Quantity"

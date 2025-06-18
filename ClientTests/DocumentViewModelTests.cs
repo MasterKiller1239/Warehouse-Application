@@ -1,90 +1,92 @@
 ﻿using Client.Dtos;
 using Client.Services.Interfaces;
+using Client.ViewModels.Documents;
 using Moq;
-using FluentAssertions;
-namespace Client.Tests.ViewModels.Documents
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Threading.Tasks;
+using Xunit;
+
+namespace Client.Tests.ViewModels
 {
-    public class DocumentViewModelTests
+    public class DocumentsViewModelTests
     {
         private readonly Mock<IApiClient> _apiClientMock;
-        private readonly EditDocumentViewModel _viewModel;
-
-        public DocumentViewModelTests()
+        private readonly DocumentsViewModel _viewModel;
+        private readonly List<DocumentDto> _mockDocuments;
+        private readonly Mock<IMessageService> _messageServiceMock;
+        public DocumentsViewModelTests()
         {
-            var app = new System.Windows.Application();
             _apiClientMock = new Mock<IApiClient>();
-            var sampleDocument = new DocumentDto
+            _messageServiceMock = new Mock<IMessageService>();
+            _mockDocuments = new List<DocumentDto>
             {
-                Id = 1,
-                Symbol = "DOC-001",
-                Date = DateTime.UtcNow,
-                ContractorId = 1,
-                Contractor = new ContractorDto() { Id = 1, Name = "Sample Contractor" },
+                new DocumentDto { Id = 1, Symbol = "ABC123" },
+                new DocumentDto { Id = 2, Symbol = "XYZ456" },
+                new DocumentDto { Id = 3, Symbol = "abc789" }
             };
-           
-            _viewModel = new EditDocumentViewModel(_apiClientMock.Object, sampleDocument);
+
+            _apiClientMock.Setup(a => a.GetDocumentsAsync()).ReturnsAsync(_mockDocuments);
+
+            // Tworzymy ViewModel z zamockowanym klientem
+            _viewModel = new DocumentsViewModel(_apiClientMock.Object, _messageServiceMock.Object);
         }
 
         [Fact]
-        public async Task LoadContractorsAsync_ShouldPopulateContractorList_AndSelectMatching()
+        public async Task LoadDocumentsCommand_LoadsDocumentsIntoCollection()
         {
-            // Arrange
-            var contractors = new List<ContractorDto>
-            {
-                new ContractorDto { Id = 1, Name = "Test Contractor" },
-                new ContractorDto { Id = 2, Name = "Another Contractor" }
-            };
-            _apiClientMock.Setup(api => api.GetContractorsAsync())
-                          .ReturnsAsync(contractors);
-
             // Act
-            await _viewModel.LoadContractorsAsync();
+            await Task.Delay(100); 
 
             // Assert
-            _viewModel.Contractors.Should().BeEquivalentTo(contractors);
-            _viewModel.SelectedContractor?.Id.Should().Be(1);
+            Assert.Equal(3, _viewModel.Documents.Count);
         }
 
         [Fact]
-        public async Task UpdateDocumentAsync_ShouldCallApiClient_WithUpdatedData()
+        public async Task SymbolFilter_FiltersDocumentsCorrectly()
         {
             // Arrange
-            var contractor = new ContractorDto { Id = 2, Name = "Updated Contractor" };
-            _viewModel.Document.Symbol = "UPDATED-DOC";
-            _viewModel.Document.Date = new DateTime(2024, 2, 1);
-            _viewModel.SelectedContractor = contractor;
-            var contractors = new List<ContractorDto>
-            {
-                new ContractorDto { Id = 1, Name = "Test Contractor" },
-                new ContractorDto { Id = 2, Name = "Another Contractor" }
-            };
-            _apiClientMock.Setup(api => api.GetContractorsAsync())
-                          .ReturnsAsync(contractors);
+            await Task.Delay(100);
+            _viewModel.SearchText = "abc";
 
             // Act
-            await _viewModel.UpdateDocumentAsync();
+            _viewModel.SearchCommand.Execute(null);
 
             // Assert
-            _apiClientMock.Verify(api => api.UpdateDocumentAsync(It.Is<DocumentDto>(d =>
-                d.Symbol == "UPDATED-DOC" &&
-                d.Date == new DateTime(2024, 2, 1) &&
-                d.ContractorId == 2 &&
-                d.Contractor.Name == contractor.Name
-            )), Times.Once);
+            Assert.Equal(2, _viewModel.Documents.Count); // "ABC123" i "abc789"
         }
 
-        //[Fact]
-        //public void CanUpdate_ShouldReturnFalse_WhenSymbolIsEmptyOrContractorNotSelected()
-        //{
-        //    // Arrange
-        //    _viewModel.Document.Symbol = " ";
-        //    _viewModel.SelectedContractor = null;
+        [Fact]
+        public void SelectedDocument_PropertyChanged_RaisesCommandCanExecuteChanged()
+        {
+            // Arrange
+            var doc = new DocumentDto { Id = 99, Symbol = "TEST" };
+            bool canExecuteBefore = _viewModel.OpenDetailsCommand.CanExecute(null);
 
-        //    // Act
-        //    var result = _viewModel.UpdateDocumentAsync();
+            // Act
+            _viewModel.SelectedDocument = doc;
+            bool canExecuteAfter = _viewModel.OpenDetailsCommand.CanExecute(null);
 
-        //    // Assert
-        //    result.Should().NotBe(null);
-        //}
+            // Assert
+            Assert.False(canExecuteBefore);
+            Assert.True(canExecuteAfter);
+        }
+
+        [Fact]
+        public void SortDocuments_ChangesOrderCorrectly()
+        {
+            // Arrange
+            _viewModel.Documents.Clear();
+            _viewModel.Documents.Add(new DocumentDto { Symbol = "Z" });
+            _viewModel.Documents.Add(new DocumentDto { Symbol = "A" });
+
+            // Act
+            _viewModel.SortDocuments("Symbol");
+
+            // Assert
+            var sortedSymbols = _viewModel.Documents.Select(d => d.Symbol).ToList();
+            Assert.Equal(new[] { "Z", "A" }, sortedSymbols);
+        }
     }
 }

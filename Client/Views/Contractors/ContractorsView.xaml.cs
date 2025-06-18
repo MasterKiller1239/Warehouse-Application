@@ -6,10 +6,10 @@ namespace Client.Views.Contractors
 {
     public partial class ContractorsView : Window
     {
-        public ContractorsView(IApiClient apiClient)
+        public ContractorsView(IApiClient apiClient, IMessageService messageService)
         {
             InitializeComponent();
-            DataContext = new ContractorsViewModel(apiClient);
+            DataContext = new ContractorsViewModel(apiClient, messageService);
         }
     }
 }

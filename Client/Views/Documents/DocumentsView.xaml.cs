@@ -12,10 +12,10 @@ namespace Client.Views.Documents
 {
     public partial class DocumentsView : Window
     {
-        public DocumentsView(IApiClient apiClient)
+        public DocumentsView(IApiClient apiClient, IMessageService messageService)
         {
             InitializeComponent();
-            DataContext = new DocumentsViewModel(apiClient);
+            DataContext = new DocumentsViewModel(apiClient, messageService);
         }
 
         private void GridViewColumnHeader_Click(object sender, MouseButtonEventArgs e)

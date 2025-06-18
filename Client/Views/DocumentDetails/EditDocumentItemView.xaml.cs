@@ -7,11 +7,11 @@ namespace Client.Views.DocumentDetails
 {
     public partial class EditDocumentItemView : Window
     {
-        public EditDocumentItemView(DocumentItemDto item, IApiClient apiClient)
+        public EditDocumentItemView(DocumentItemDto item, IApiClient apiClient, IMessageService messageService)
         {
             InitializeComponent();
 
-            var vm = new EditDocumentItemViewModel(item, apiClient);
+            var vm = new EditDocumentItemViewModel(item, apiClient, messageService);
             vm.RequestClose += (s, e) => this.Close();
 
             DataContext = vm;

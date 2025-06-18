@@ -15,8 +15,8 @@ namespace Client.ViewModels.Contractors
         private RelayCommand _editCommand;
         private RelayCommand _sortCommand;
         private RelayCommand _searchCommand;
-
-        private List<ContractorDto> _allContractors = new(); // kopia oryginalna do filtrowania
+        private readonly IMessageService _messageService;
+        private List<ContractorDto> _allContractors = new(); 
 
         public ObservableCollection<ContractorDto> Contractors { get; } = new();
         public ICommand AddCommand { get; }
@@ -59,9 +59,10 @@ namespace Client.ViewModels.Contractors
             }
         }
 
-        public ContractorsViewModel(IApiClient apiClient)
+        public ContractorsViewModel(IApiClient apiClient, IMessageService messageService)
         {
             _apiClient = apiClient;
+            _messageService = messageService;
             AddCommand = new RelayCommand(OnAdd);
             _editCommand = new RelayCommand(OnEdit, () => SelectedContractor != null);
             _sortCommand = new RelayCommand(ApplySorting);
@@ -108,7 +109,7 @@ namespace Client.ViewModels.Contractors
 
         private void OnAdd()
         {
-            var view = new Views.Contractors.AddContractorView(_apiClient);
+            var view = new Views.Contractors.AddContractorView(_apiClient, _messageService);
             view.ShowDialog();
             LoadContractors();
         }
@@ -116,7 +117,7 @@ namespace Client.ViewModels.Contractors
         private void OnEdit()
         {
             if (SelectedContractor == null) return;
-            var view = new Views.Contractors.EditContractorView(_apiClient, SelectedContractor);
+            var view = new Views.Contractors.EditContractorView(_apiClient, SelectedContractor, _messageService);
             view.ShowDialog();
             LoadContractors();
         }

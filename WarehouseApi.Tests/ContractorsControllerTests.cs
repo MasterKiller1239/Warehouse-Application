@@ -62,5 +62,96 @@ namespace WarehouseApplication.Tests.Controllers
             var returned = Assert.IsType<ContractorDto>(createdAt.Value);
             Assert.Equal("C3", returned.Symbol);
         }
+        [Fact]
+        public async Task Get_ById_ReturnsContractor_WhenExists()
+        {
+            // Arrange
+            var contractor = new ContractorDto { Id = 1, Symbol = "C1", Name = "Contractor One" };
+            _serviceMock.Setup(s => s.GetByIdAsync(1)).ReturnsAsync(contractor);
+            var controller = new ContractorsController(_serviceMock.Object);
+
+            // Act
+            var result = await controller.Get(1);
+
+            // Assert
+            var okResult = Assert.IsType<OkObjectResult>(result.Result);
+            var returned = Assert.IsType<ContractorDto>(okResult.Value);
+            Assert.Equal(1, returned.Id);
+        }
+
+        [Fact]
+        public async Task Get_ById_ReturnsNotFound_WhenNotExists()
+        {
+            // Arrange
+            _serviceMock.Setup(s => s.GetByIdAsync(999)).ReturnsAsync((ContractorDto)null);
+            var controller = new ContractorsController(_serviceMock.Object);
+
+            // Act
+            var result = await controller.Get(999);
+
+            // Assert
+            Assert.IsType<NotFoundResult>(result.Result);
+        }
+
+        [Fact]
+        public async Task Put_UpdatesContractor_WhenValid()
+        {
+            // Arrange
+            var dto = new ContractorDto { Id = 1, Symbol = "C1", Name = "Updated" };
+            _serviceMock.Setup(s => s.UpdateAsync(1, dto)).ReturnsAsync(true);
+            var controller = new ContractorsController(_serviceMock.Object);
+
+            // Act
+            var result = await controller.Put(1, dto);
+
+            // Assert
+            Assert.IsType<NoContentResult>(result);
+        }
+
+        [Fact]
+        public async Task Put_ReturnsBadRequest_WhenUpdateFails()
+        {
+            // Arrange
+            var dto = new ContractorDto { Id = 1, Symbol = "C1", Name = "Updated" };
+            _serviceMock.Setup(s => s.UpdateAsync(1, dto)).ReturnsAsync(false);
+            var controller = new ContractorsController(_serviceMock.Object);
+
+            // Act
+            var result = await controller.Put(1, dto);
+
+            // Assert
+            Assert.IsType<BadRequestResult>(result);
+        }
+
+        [Fact]
+        public async Task GetBySymbol_ReturnsContractor_WhenFound()
+        {
+            // Arrange
+            var contractor = new ContractorDto { Id = 1, Symbol = "ABC", Name = "Some Contractor" };
+            _serviceMock.Setup(s => s.GetBySymbolAsync("ABC")).ReturnsAsync(contractor);
+            var controller = new ContractorsController(_serviceMock.Object);
+
+            // Act
+            var result = await controller.GetBySymbol("ABC");
+
+            // Assert
+            var okResult = Assert.IsType<OkObjectResult>(result.Result);
+            var returned = Assert.IsType<ContractorDto>(okResult.Value);
+            Assert.Equal("ABC", returned.Symbol);
+        }
+
+        [Fact]
+        public async Task GetBySymbol_ReturnsNotFound_WhenMissing()
+        {
+            // Arrange
+            _serviceMock.Setup(s => s.GetBySymbolAsync("XXX")).ReturnsAsync((ContractorDto)null);
+            var controller = new ContractorsController(_serviceMock.Object);
+
+            // Act
+            var result = await controller.GetBySymbol("XXX");
+
+            // Assert
+            Assert.IsType<NotFoundResult>(result.Result);
+        }
     }
 }

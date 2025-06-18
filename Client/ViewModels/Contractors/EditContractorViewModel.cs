@@ -11,6 +11,7 @@ namespace Client.ViewModels.Contractors
     public class EditContractorViewModel : INotifyPropertyChanged
     {
         private readonly IApiClient _apiClient;
+        private readonly IMessageService _messageService;
 
         public string Symbol { get; set; }
         public string Name { get; set; }
@@ -21,11 +22,11 @@ namespace Client.ViewModels.Contractors
         private readonly int _contractorId;
 
         public Action? CloseAction { get; set; }
-        public EditContractorViewModel(IApiClient apiClient, ContractorDto contractor, Window window)
+        public EditContractorViewModel(IApiClient apiClient, ContractorDto contractor, Window window, IMessageService messageService)
         {
             _apiClient = apiClient;
             _contractorId = contractor.Id;
-
+            _messageService = messageService;
             Symbol = contractor.Symbol;
             Name = contractor.Name;
 
@@ -37,7 +38,7 @@ namespace Client.ViewModels.Contractors
         {
             if (string.IsNullOrWhiteSpace(Symbol) || string.IsNullOrWhiteSpace(Name))
             {
-                MessageBox.Show("All fields are required.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
+                _messageService.ShowWarning("All fields are required.", "Validation");
                 return;
             }
 
@@ -51,12 +52,12 @@ namespace Client.ViewModels.Contractors
             try
             {
                 await _apiClient.UpdateContractorAsync(updated);
-                MessageBox.Show("Contractor updated.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                _messageService.ShowInfo("Contractor updated.", "Success");
                 CloseAction?.Invoke();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error: {ex.Message}", "Failure", MessageBoxButton.OK, MessageBoxImage.Error);
+                _messageService.ShowError($"Error: {ex.Message}", "Failure");
             }
         }
 

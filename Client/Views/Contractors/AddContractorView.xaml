@@ -52,7 +52,7 @@
                     HorizontalAlignment="Right" 
                     Grid.Row="4"
                     Margin="0,16,0,0">
-            <Button Content="CANCEL" 
+            <Button Content="CANCEL" Margin="0 0 16 0"
                     Command="{Binding CancelCommand}"
                     />
 

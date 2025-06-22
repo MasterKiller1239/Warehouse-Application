@@ -19,7 +19,7 @@ namespace Client.ViewModels.Documents
         private DateTime _date = DateTime.Now;
         private readonly IMessageService _messageService;
         public ObservableCollection<ContractorDto> Contractors { get; } = new ObservableCollection<ContractorDto>();
-
+        public Action? CloseAction { get; set; }
         public string Symbol
         {
             get => _symbol;
@@ -62,6 +62,8 @@ namespace Client.ViewModels.Documents
         public ICommand SaveCommand { get; }
         public ICommand AddContractorCommand { get; }
 
+        public ICommand CancelCommand { get; }
+
         public event PropertyChangedEventHandler? PropertyChanged;
         public event EventHandler? RequestClose;
 
@@ -71,7 +73,7 @@ namespace Client.ViewModels.Documents
             _messageService = messageService;
             SaveCommand = new RelayCommand(async () => await SaveAsync());
             AddContractorCommand = new RelayCommand(async () => await OpenAddContractorDialog());
-
+            CancelCommand = new RelayCommand(() => CloseAction?.Invoke());
             LoadContractorsAsync();
         }
 

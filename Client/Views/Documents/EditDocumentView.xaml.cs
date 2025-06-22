@@ -12,6 +12,7 @@ namespace Client.Views.Documents
         {
             InitializeComponent();
             _viewModel = new EditDocumentViewModel(apiClient, document, messageService);
+            _viewModel.CloseAction = Close;
             _viewModel.RequestClose += (s, e) => this.Close();
             DataContext = _viewModel;
         }

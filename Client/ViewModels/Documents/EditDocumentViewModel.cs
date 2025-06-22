@@ -13,6 +13,7 @@ public class EditDocumentViewModel : INotifyPropertyChanged
 {
     private readonly IApiClient _apiClient;
     public ICommand AddContractorCommand { get; }
+    public ICommand CancelCommand { get; }
     private readonly IMessageService _messageService;
     public EditDocumentViewModel(IApiClient apiClient, DocumentDto document, IMessageService messageService)
     {
@@ -22,11 +23,12 @@ public class EditDocumentViewModel : INotifyPropertyChanged
         Contractors = new ObservableCollection<ContractorDto>();
         LoadContractorsCommand = new RelayCommand(async () => await LoadContractorsAsync());
         UpdateCommand = new RelayCommand(async () => await UpdateDocumentAsync());
+        CancelCommand = new RelayCommand(() => CloseAction?.Invoke());
         AddContractorCommand = new RelayCommand(async () => await OpenAddContractorDialog());
         _ = LoadContractorsAsync();
 
     }
-
+    public Action? CloseAction { get; set; }
     public DocumentDto Document { get; }
 
     private ContractorDto? _selectedContractor;

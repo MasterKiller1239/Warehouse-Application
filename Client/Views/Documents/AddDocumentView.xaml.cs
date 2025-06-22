@@ -25,7 +25,7 @@ namespace Client.Views.Documents
 
             var vm = new AddDocumentViewModel(apiClient, messageService);
             vm.RequestClose += (s, e) => Close();
-
+            vm.CloseAction = Close;
             DataContext = vm;
         }
     }

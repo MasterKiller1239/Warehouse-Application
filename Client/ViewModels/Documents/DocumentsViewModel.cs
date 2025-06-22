@@ -1,15 +1,11 @@
 ﻿using Client.Dtos;
 using Client.Services.Interfaces;
+using Client.Services.Interfaces.IFactories;
 using Client.Utilities;
 using Client.Views.DocumentDetails;
 using Client.Views.Documents;
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Input;
@@ -20,9 +16,12 @@ namespace Client.ViewModels.Documents
     {
         private readonly IApiClient _apiClient;
         private readonly IMessageService _messageService;
+        private readonly IAddDocumentViewModelFactory _addDocumentVmFactory;
+        private readonly IEditDocumentViewModelFactory _editDocumentVmFactory;
+        private readonly IDocumentDetailsViewModelFactory _documentDetailsVmFactory;
         private DocumentDto? _selectedDocument;
         private RelayCommand _searchCommand;
-
+        public event Action<bool> RequestClose;
         public ObservableCollection<DocumentDto> Documents { get; } = new ObservableCollection<DocumentDto>();
 
         public DocumentDto? SelectedDocument
@@ -54,25 +53,15 @@ namespace Client.ViewModels.Documents
         private string? _lastSortColumn = null;
 
         public RelayCommand<string> SortCommand { get; }
-        private string _symbolFilter = string.Empty;
-        public string SymbolFilter
-        {
-            get => _symbolFilter;
-            set
-            {
-                if (_symbolFilter != value)
-                {
-                    _symbolFilter = value;
-                    OnPropertyChanged();
-                    ApplyFilter();
-                }
-            }
-        }
-
-        public DocumentsViewModel(IApiClient apiClient, IMessageService messageService)
+        public DocumentsViewModel(IApiClient apiClient, IMessageService messageService, IAddDocumentViewModelFactory addDocumentVmFactory,
+        IEditDocumentViewModelFactory editDocumentVmFactory,
+        IDocumentDetailsViewModelFactory documentDetailsVmFactory)
         {
             _apiClient = apiClient;
             _messageService = messageService;
+            _addDocumentVmFactory = addDocumentVmFactory;
+            _editDocumentVmFactory = editDocumentVmFactory;
+            _documentDetailsVmFactory = documentDetailsVmFactory;
             LoadDocumentsCommand = new RelayCommand(async () => await LoadDocumentsAsync());
             _openDetailsCommand = new RelayCommand(OpenDetails, () => SelectedDocument != null);
             AddDocumentCommand = new RelayCommand(AddDocument);
@@ -94,19 +83,15 @@ namespace Client.ViewModels.Documents
                 OnPropertyChanged();
             }
         }
-        private async Task LoadDocumentsAsync()
+        public async Task LoadDocumentsAsync()
         {
             var docs = await _apiClient.GetDocumentsAsync();
             Documents.Clear();
             foreach (var d in docs)
                 Documents.Add(d);
             _allDocuments = docs.ToList();
-            //await  Application.Current.Dispatcher.InvokeAsync(() =>
-            //{
-               
-            //});
         }
-        private void ApplyFilter()
+        public void ApplyFilter()
         {
             Documents.Clear();
             var filtered = string.IsNullOrWhiteSpace(SearchText)
@@ -124,29 +109,44 @@ namespace Client.ViewModels.Documents
         {
             if (SelectedDocument != null)
             {
-                var detailsView = new DocumentDetailsView(SelectedDocument, _apiClient, _messageService);
-                detailsView.Show();
+                var detailsView = _documentDetailsVmFactory.Create(SelectedDocument, async () => await LoadDocumentsAsync());
+                var view = new DocumentDetailsView(detailsView);
+                view.Show();
             }
         }
 
         private void AddDocument()
         {
-            var addView = new AddDocumentView(_apiClient, _messageService);
-            addView.Closed += async (s, e) => await LoadDocumentsAsync();
-            addView.ShowDialog();
+            var viewModel = _addDocumentVmFactory.Create();
+            var view = new AddDocumentView() {DataContext = viewModel };
+          
+            view.ShowDialog();
+
+            if (view.DialogResult == true)
+            {
+                _ = LoadDocumentsAsync();
+            }
         }
 
         private void EditDocument()
         {
             if (SelectedDocument != null)
             {
-                var editView = new EditDocumentView(_apiClient, SelectedDocument,_messageService);
-                editView.Closed += async (s, e) => await LoadDocumentsAsync();
+                var viewModel = _editDocumentVmFactory.Create(SelectedDocument);
+
+                var editView = new EditDocumentView(viewModel);
+
+                viewModel.RequestClose += (success) =>
+                {
+                    editView.DialogResult = success;
+                    if (success) _ = LoadDocumentsAsync();
+                };
+
                 editView.ShowDialog();
             }
             else
             {
-                MessageBox.Show("Please select a document to edit.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                _messageService.ShowWarning("Please select a document to edit.");
             }
         }
         public void SortDocuments(string columnName)

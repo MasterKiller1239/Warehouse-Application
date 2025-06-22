@@ -12,7 +12,7 @@ public class AddDocumentItemViewModel : INotifyPropertyChanged
     private readonly int _documentId;
     private readonly IApiClient _apiClient;
     private readonly IMessageService _messageService;
-    public AddDocumentItemViewModel(int documentId, IApiClient apiClient, Window window, IMessageService messageService)
+    public AddDocumentItemViewModel(int documentId, IApiClient apiClient, IMessageService messageService)
     {
         _documentId = documentId;
         _apiClient = apiClient;
@@ -76,6 +76,12 @@ public class AddDocumentItemViewModel : INotifyPropertyChanged
         {
             _messageService.ShowError($"An error occurred while adding the item: {ex.Message}", "Failure");
         }
+    }
+    public event Action<bool> RequestClose;
+
+    public void Close(bool dialogResult)
+    {
+        RequestClose?.Invoke(dialogResult);
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;

@@ -6,7 +6,7 @@
         Title="Add Contractor" 
         Height="350" 
         Width="400"
-        WindowStartupLocation="CenterScreen">
+        WindowStartupLocation="CenterScreen" Background="{DynamicResource AcrylicBackgroundFillColorBaseBrush}">
 
     <Window.Resources>
         <Style TargetType="TextBlock" BasedOn="{StaticResource MaterialDesignBody1TextBlock}">
@@ -52,7 +52,7 @@
                     HorizontalAlignment="Right" 
                     Grid.Row="4"
                     Margin="0,16,0,0">
-            <Button Content="CANCEL" 
+            <Button Content="CANCEL" Margin="0,0,10,0" 
                     Command="{Binding CancelCommand}"
                     />
 

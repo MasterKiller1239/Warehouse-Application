@@ -1,5 +1,6 @@
 ﻿using Client.Dtos;
 using Client.Services.Interfaces;
+using Client.Services.Interfaces.IFactories;
 using Client.Utilities;
 using Client.Views.DocumentDetails;
 using System;
@@ -13,11 +14,16 @@ public class DocumentDetailsViewModel : INotifyPropertyChanged
 {
     private readonly IApiClient _apiClient;
     private readonly IMessageService _messageService;
-    public DocumentDetailsViewModel(DocumentDto document, IApiClient apiClient, Window window, IMessageService messageService)
+    private readonly IAddDocumentItemViewModelFactory _addItemVmFactory;
+    private readonly IEditDocumentItemViewModelFactory _editItemVmFactory;
+    private readonly Action? _onDocumentUpdated; 
+    public DocumentDetailsViewModel(DocumentDto document, IApiClient apiClient, IMessageService messageService,
+        IAddDocumentItemViewModelFactory addItemVmFactory,
+        IEditDocumentItemViewModelFactory editItemVmFactory, Action? onDocumentUpdated = null)
     {
         _apiClient = apiClient;
         _messageService = messageService;
-
+        _onDocumentUpdated = onDocumentUpdated;
         _document = document;
         Items = new ObservableCollection<DocumentItemDto>(document.Items ?? new());
 
@@ -32,6 +38,7 @@ public class DocumentDetailsViewModel : INotifyPropertyChanged
     public string Date => _document.Date.ToShortDateString();
     public string ContractorName => _document.Contractor.Name;
     public ICommand SortCommand { get; }
+    public ICommand OpenItemCommand { get; }
 
     private string? _currentSortColumn;
     private bool _sortAscending = true;
@@ -62,23 +69,29 @@ public class DocumentDetailsViewModel : INotifyPropertyChanged
     public ICommand AddCommand { get; }
     public ICommand EditCommand { get; }
 
-    private async void OpenAddItem()
+    private void OpenAddItem()
     {
-        var addView = new AddDocumentItemView(_document.Id, _apiClient,_messageService);
-        addView.ShowDialog();
-
-        var updated = await _apiClient.GetDocumentAsync(_document.Id);
-        _document = updated;
-        RefreshItems();
+        var vm = _addItemVmFactory.Create(_document.Id);
+        var view = new AddDocumentItemView(vm);
+        vm.RequestClose += (success) =>
+        {
+            if (success) RefreshDocument();
+            view.DialogResult = success;
+        };
+        view.ShowDialog();
     }
-
-    private async void OpenEditItem()
+    private void OpenEditItem()
     {
         if (SelectedItem is null) return;
 
-        var editView = new EditDocumentItemView(SelectedItem, _apiClient, _messageService);
-        editView.ShowDialog();
+        var vm = _editItemVmFactory.Create(SelectedItem);
+        var view = new EditDocumentItemView(vm);
+        
+        view.ShowDialog();
+    }
 
+    private async void RefreshDocument()
+    {
         var updated = await _apiClient.GetDocumentAsync(_document.Id);
         _document = updated;
         RefreshItems();

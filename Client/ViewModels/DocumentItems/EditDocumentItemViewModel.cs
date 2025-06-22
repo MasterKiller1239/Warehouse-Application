@@ -22,7 +22,8 @@ namespace Client.ViewModels.DocumentItems
         private string _quantityText;
         private readonly IMessageService _messageService;
         public event PropertyChangedEventHandler? PropertyChanged;
-
+        public Action? CloseAction { get; set; }
+        public ICommand CancelCommand { get; }
         public EditDocumentItemViewModel(DocumentItemDto item, IApiClient apiClient, IMessageService messageService)
         {
             _item = item;
@@ -32,6 +33,7 @@ namespace Client.ViewModels.DocumentItems
             Unit = _item.Unit;
             QuantityText = _item.Quantity.ToString(CultureInfo.InvariantCulture);
             SaveCommand = new RelayCommand(async () => await SaveAsync());
+            CancelCommand = new RelayCommand(() => CloseAction?.Invoke());
         }
 
         public string ProductName

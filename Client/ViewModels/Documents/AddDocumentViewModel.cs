@@ -7,6 +7,7 @@ using Client.Utilities;
 using Client.Dtos;
 using Client.ViewModels.Contractors;
 using Client.Views.Contractors;
+using Client.Services.Interfaces.IFactories.Contractors;
 
 namespace Client.ViewModels.Documents
 {
@@ -17,7 +18,8 @@ namespace Client.ViewModels.Documents
         private string _symbol = string.Empty;
         private ContractorDto? _selectedContractor;
         private DateTime _date = DateTime.Now;
-        private readonly IMessageService _messageService;
+        private readonly IMessageService _messageService; 
+        private readonly IAddContractorViewFactory _addContractorViewFactory;
         public ObservableCollection<ContractorDto> Contractors { get; } = new ObservableCollection<ContractorDto>();
 
         public string Symbol
@@ -58,20 +60,27 @@ namespace Client.ViewModels.Documents
                 }
             }
         }
-
+        public ICommand CancelCommand { get; }
         public ICommand SaveCommand { get; }
         public ICommand AddContractorCommand { get; }
+        public Action? CloseAction { get;  set; }
 
         public event PropertyChangedEventHandler? PropertyChanged;
-        public event EventHandler? RequestClose;
+        public event Action<bool> RequestClose;
 
-        public AddDocumentViewModel(IApiClient apiClient, IMessageService messageService)
+        public void Close(bool dialogResult)
+        {
+            RequestClose?.Invoke(dialogResult);
+        }
+
+        public AddDocumentViewModel(IApiClient apiClient, IMessageService messageService, IAddContractorViewFactory addContractorViewFactory)
         {
             _apiClient = apiClient;
-            _messageService = messageService;
+            _messageService = messageService; 
+            _addContractorViewFactory = addContractorViewFactory;
             SaveCommand = new RelayCommand(async () => await SaveAsync());
             AddContractorCommand = new RelayCommand(async () => await OpenAddContractorDialog());
-
+            CancelCommand = new RelayCommand(() => CloseAction?.Invoke());_addContractorViewFactory = addContractorViewFactory;
             LoadContractorsAsync();
         }
 
@@ -125,23 +134,22 @@ namespace Client.ViewModels.Documents
                 await _apiClient.AddDocumentAsync(newDocument);
                 _messageService.ShowInfo("Document added successfully.", "Success");
 
-                RequestClose?.Invoke(this, EventArgs.Empty);
+                RequestClose?.Invoke(true);
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Error saving document: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
-        private async Task OpenAddContractorDialog()
+        public async Task OpenAddContractorDialog()
         {
-            var window = new AddContractorView(_apiClient, _messageService);
-            if (window.ShowDialog() == true)
+            var addContractorView = _addContractorViewFactory.Create();
+            if (addContractorView.ShowDialog() == true)
             {
-                if (window.DataContext is IContractorResultProvider provider && provider.NewContractor is ContractorDto newContractor)
+                await LoadContractorsAsync();
+                if (addContractorView.DataContext is AddContractorViewModel vm && vm.NewContractor != null)
                 {
-
-                    await LoadContractorsAsync();
-                    SelectedContractor = Contractors.Where(contractor => contractor.Name == newContractor.Name).FirstOrDefault();
+                    SelectedContractor = Contractors.FirstOrDefault(c => c.Id == vm.NewContractor.Id);
                 }
             }
         }

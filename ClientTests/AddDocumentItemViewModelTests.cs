@@ -17,7 +17,7 @@ namespace Client.Tests.ViewModels
         {
             _messageServiceMock = new Mock<IMessageService>();
             _apiClientMock = new Mock<IApiClient>();
-            _viewModel = new AddDocumentItemViewModel(42, _apiClientMock.Object, window: null!, _messageServiceMock.Object); 
+            _viewModel = new AddDocumentItemViewModel(42, _apiClientMock.Object, _messageServiceMock.Object); 
             _viewModel.CloseAction = () => _wasClosed = true;
         }
 

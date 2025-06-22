@@ -1,5 +1,6 @@
 ﻿using Client.Dtos;
 using Client.Services.Interfaces;
+using Client.Services.Interfaces.IFactories.Contractors;
 using Client.Utilities;
 using Client.ViewModels.Contractors;
 using Client.Views.Contractors;
@@ -14,15 +15,19 @@ public class EditDocumentViewModel : INotifyPropertyChanged
     private readonly IApiClient _apiClient;
     public ICommand AddContractorCommand { get; }
     private readonly IMessageService _messageService;
-    public EditDocumentViewModel(IApiClient apiClient, DocumentDto document, IMessageService messageService)
+    private readonly IAddContractorViewFactory _addContractorViewFactory;
+    public Action? CloseAction { get; set; }
+    public EditDocumentViewModel(IApiClient apiClient, DocumentDto document, IMessageService messageService, IAddContractorViewFactory _addContractorViewFactory)
     {
         _apiClient = apiClient ?? throw new ArgumentNullException(nameof(apiClient));
         Document = document ?? throw new ArgumentNullException(nameof(document));
         _messageService = messageService;
+        _addContractorViewFactory = _addContractorViewFactory ?? throw new ArgumentNullException(nameof(_addContractorViewFactory));
         Contractors = new ObservableCollection<ContractorDto>();
         LoadContractorsCommand = new RelayCommand(async () => await LoadContractorsAsync());
         UpdateCommand = new RelayCommand(async () => await UpdateDocumentAsync());
         AddContractorCommand = new RelayCommand(async () => await OpenAddContractorDialog());
+        CancelCommand = new RelayCommand(() => CloseAction?.Invoke());
         _ = LoadContractorsAsync();
 
     }
@@ -47,7 +52,8 @@ public class EditDocumentViewModel : INotifyPropertyChanged
 
     public ICommand LoadContractorsCommand { get; }
     public ICommand UpdateCommand { get; }
-  
+    public ICommand CancelCommand { get; }
+
     public async Task LoadContractorsAsync()
     {
         var contractors = await _apiClient.GetContractorsAsync();
@@ -86,7 +92,7 @@ public class EditDocumentViewModel : INotifyPropertyChanged
             await _apiClient.UpdateDocumentAsync(Document);
             MessageBox.Show("Document updated successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
 
-            RequestClose?.Invoke(this, EventArgs.Empty);
+            RequestClose?.Invoke(true);
         }
         catch (Exception ex)
         {
@@ -95,7 +101,7 @@ public class EditDocumentViewModel : INotifyPropertyChanged
     }
     private async Task OpenAddContractorDialog()
     {
-        var window = new AddContractorView(_apiClient,_messageService);
+        var window = _addContractorViewFactory.Create();
         if (window.ShowDialog() == true)
         {
             if (window.DataContext is IContractorResultProvider provider && provider.NewContractor is ContractorDto newContractor)
@@ -107,7 +113,12 @@ public class EditDocumentViewModel : INotifyPropertyChanged
         }
     }
 
-    public event EventHandler? RequestClose;
+    public event Action<bool> RequestClose;
+
+    public void Close(bool dialogResult)
+    {
+        RequestClose?.Invoke(dialogResult);
+    }
 
     public event PropertyChangedEventHandler? PropertyChanged;
 

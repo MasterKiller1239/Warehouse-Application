@@ -18,7 +18,7 @@ namespace Client.Tests.ViewModels
             _messageServiceMock = new Mock<IMessageService>();
             _apiClientMock = new Mock<IApiClient>();
             _viewModel = new AddDocumentItemViewModel(42, _apiClientMock.Object, _messageServiceMock.Object); 
-            _viewModel.CloseAction = () => _wasClosed = true;
+            _viewModel.RequestClose += (success) => _wasClosed = true;
         }
 
         [Theory]
@@ -95,7 +95,7 @@ namespace Client.Tests.ViewModels
 
             // Assert
             _apiClientMock.Verify(a => a.AddDocumentItemAsync(It.IsAny<DocumentItemDto>()), Times.Once);
-            Assert.False(_wasClosed); // okno się nie zamyka przy błędzie
+            Assert.False(_wasClosed); 
         }
 
         private static async Task ExecuteCommandAsync(ICommand command)

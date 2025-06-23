@@ -17,6 +17,7 @@ namespace Client.Views.DocumentDetails
         public AddDocumentItemView(AddDocumentItemViewModel viewModel)
         {
             InitializeComponent();
+            viewModel.CloseAction = Close;
             DataContext = viewModel;
             viewModel.RequestClose += (result) =>
             {

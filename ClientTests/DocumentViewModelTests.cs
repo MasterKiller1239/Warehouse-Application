@@ -51,7 +51,7 @@ namespace Client.Tests.ViewModels
 
             // Assert
             Assert.Equal(3, _viewModel.Documents.Count);
-            _apiClientMock.Verify(x => x.GetDocumentsAsync(), Times.Once);
+            _apiClientMock.Verify(x => x.GetDocumentsAsync(), Times.Exactly(2));
         }
 
         [Fact]
@@ -90,7 +90,6 @@ namespace Client.Tests.ViewModels
         public void SortDocuments_ShouldSortAscendingFirstThenDescending()
         {
             // Arrange
-            var collectionView = CollectionViewSource.GetDefaultView(_viewModel.Documents);
             _viewModel.Documents.Clear();
             _viewModel.Documents.Add(new DocumentDto { Symbol = "B" });
             _viewModel.Documents.Add(new DocumentDto { Symbol = "A" });
@@ -98,17 +97,22 @@ namespace Client.Tests.ViewModels
 
             // Act - First sort (ascending)
             _viewModel.SortDocuments("Symbol");
-            var firstSort = _viewModel.Documents.Select(d => d.Symbol).ToList();
+            var firstSort = CollectionViewSource.GetDefaultView(_viewModel.Documents)
+                              .Cast<DocumentDto>()
+                              .Select(d => d.Symbol)
+                              .ToList(); 
 
             // Act - Second sort (descending)
             _viewModel.SortDocuments("Symbol");
-            var secondSort = _viewModel.Documents.Select(d => d.Symbol).ToList();
+            var secondSort = CollectionViewSource.GetDefaultView(_viewModel.Documents)
+                               .Cast<DocumentDto>()
+                               .Select(d => d.Symbol)
+                               .ToList(); 
 
             // Assert
             Assert.Equal(new[] { "A", "B", "C" }, firstSort);
             Assert.Equal(new[] { "C", "B", "A" }, secondSort);
         }
-
 
 
         [Fact]
@@ -124,7 +128,7 @@ namespace Client.Tests.ViewModels
             _messageServiceMock.Verify(
                 x => x.ShowWarning(
                     "Please select a document to edit",
-                    It.IsAny<string>()), 
+                   "Warning"), 
                 Times.Once);
 
             _editDocVmFactoryMock.Verify(

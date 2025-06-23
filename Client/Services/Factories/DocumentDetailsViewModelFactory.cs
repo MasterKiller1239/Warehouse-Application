@@ -11,13 +11,13 @@ namespace Client.Services.Factories
         private readonly IApiClient _apiClient;
         private readonly IMessageService _messageService;
         private readonly IAddDocumentItemViewModelFactory _addItemVmFactory;
-        private readonly EditDocumentItemViewModelFactory _editItemVmFactory;
+        private readonly IEditDocumentItemViewModelFactory _editItemVmFactory;
 
         public DocumentDetailsViewModelFactory(
             IApiClient apiClient,
             IMessageService messageService,
             IAddDocumentItemViewModelFactory addItemVmFactory,
-            EditDocumentItemViewModelFactory editItemVmFactory)
+            IEditDocumentItemViewModelFactory editItemVmFactory)
         {
             _apiClient = apiClient;
             _messageService = messageService;

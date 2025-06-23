@@ -1,19 +1,5 @@
-﻿using Client.Dtos;
-using Client.Services.Interfaces;
-using Client.ViewModels.Documents;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Client.ViewModels.Documents;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace Client.Views.Documents
 {
@@ -30,8 +16,8 @@ namespace Client.Views.Documents
             DataContext = viewModel;
             viewModel.RequestClose += (result) =>
             {
-                this.DialogResult = result;
-                this.Close();
+                DialogResult = result;
+                Close();
             };
         }
     }

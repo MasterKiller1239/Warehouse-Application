@@ -1,41 +1,31 @@
-﻿using Client.Services.Interfaces;
-using System;
-using System.Collections.Generic;
+﻿using Client.Dtos;
+using Client.Services.Interfaces;
+using Client.Utilities;
 using System.ComponentModel;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Runtime.CompilerServices;
 using System.Windows.Input;
-using System.Windows;
-using Client.Dtos;
-using Client.Utilities;
 
 namespace Client.ViewModels.DocumentItems
 {
     public class EditDocumentItemViewModel : INotifyPropertyChanged
     {
+        #region Fields
         private readonly IApiClient _apiClient;
         private readonly DocumentItemDto _item;
+        private readonly IMessageService _messageService;
+
         private string _productName;
         private string _unit;
         private string _quantityText;
-        private readonly IMessageService _messageService;
-        public event PropertyChangedEventHandler? PropertyChanged;
-        public Action? CloseAction { get; set; }
-        public ICommand CancelCommand { get; }
-        public EditDocumentItemViewModel(DocumentItemDto item, IApiClient apiClient, IMessageService messageService)
-        {
-            _item = item;
-            _apiClient = apiClient;
-            _messageService = messageService;
-            ProductName = _item.ProductName;
-            Unit = _item.Unit;
-            QuantityText = _item.Quantity.ToString(CultureInfo.InvariantCulture);
-            SaveCommand = new RelayCommand(async () => await SaveAsync());
-            CancelCommand = new RelayCommand(() => CloseAction?.Invoke());
-        }
+        #endregion
 
+        #region Events
+        public event PropertyChangedEventHandler? PropertyChanged;
+        public event EventHandler? RequestClose;
+        #endregion
+
+        #region Properties
         public string ProductName
         {
             get => _productName;
@@ -75,31 +65,40 @@ namespace Client.ViewModels.DocumentItems
             }
         }
 
-        public ICommand SaveCommand { get; }
+        public Action? CloseAction { get; set; }
+        #endregion
 
+        #region Commands
+        public ICommand SaveCommand { get; }
+        public ICommand CancelCommand { get; }
+        #endregion
+
+        #region Constructor
+        public EditDocumentItemViewModel(
+            DocumentItemDto item,
+            IApiClient apiClient,
+            IMessageService messageService)
+        {
+            _item = item;
+            _apiClient = apiClient;
+            _messageService = messageService;
+
+            ProductName = _item.ProductName;
+            Unit = _item.Unit;
+            QuantityText = _item.Quantity.ToString(CultureInfo.InvariantCulture);
+
+            SaveCommand = new RelayCommand(async () => await SaveAsync());
+            CancelCommand = new RelayCommand(() => CloseAction?.Invoke());
+        }
+        #endregion
+
+        #region Private Methods
         private async Task SaveAsync()
         {
-            if (string.IsNullOrWhiteSpace(ProductName))
-            {
-                _messageService.ShowWarning("Product name is required.", "Validation");
+            if (!ValidateInput())
                 return;
-            }
 
-            if (string.IsNullOrWhiteSpace(Unit))
-            {
-                _messageService.ShowWarning("Unit is required.", "Validation");
-                return;
-            }
-
-            if (!decimal.TryParse(QuantityText, NumberStyles.Number, CultureInfo.InvariantCulture, out decimal quantity) || quantity <= 0)
-            {
-                _messageService.ShowWarning("Please enter a valid positive number for quantity.", "Validation");
-                return;
-            }
-
-            _item.ProductName = ProductName.Trim();
-            _item.Unit = Unit.Trim();
-            _item.Quantity = quantity;
+            UpdateItemFromInput();
 
             try
             {
@@ -113,9 +112,40 @@ namespace Client.ViewModels.DocumentItems
             }
         }
 
-        public event EventHandler? RequestClose;
+        private bool ValidateInput()
+        {
+            if (string.IsNullOrWhiteSpace(ProductName))
+            {
+                _messageService.ShowWarning("Product name is required.", "Validation");
+                return false;
+            }
 
-        private void OnPropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string? name = null)
-            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+            if (string.IsNullOrWhiteSpace(Unit))
+            {
+                _messageService.ShowWarning("Unit is required.", "Validation");
+                return false;
+            }
+
+            if (!decimal.TryParse(QuantityText, NumberStyles.Number, CultureInfo.InvariantCulture, out decimal quantity) || quantity <= 0)
+            {
+                _messageService.ShowWarning("Please enter a valid positive number for quantity.", "Validation");
+                return false;
+            }
+
+            return true;
+        }
+
+        private void UpdateItemFromInput()
+        {
+            _item.ProductName = ProductName.Trim();
+            _item.Unit = Unit.Trim();
+            _item.Quantity = decimal.Parse(QuantityText, CultureInfo.InvariantCulture);
+        }
+
+        private void OnPropertyChanged([CallerMemberName] string? name = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
+        #endregion
     }
 }

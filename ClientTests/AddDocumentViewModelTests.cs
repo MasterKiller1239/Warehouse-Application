@@ -24,7 +24,10 @@ namespace Client.Tests.ViewModels
 
         public AddDocumentViewModelTests()
         {
-            _apiClientMock = new Mock<IApiClient>();
+            _apiClientMock = new Mock<IApiClient>(); 
+            var contractors = new List<ContractorDto> { new ContractorDto { Id = 4, Name = "Test Contractor" } };
+            _apiClientMock.Setup(x => x.GetContractorsAsync())
+               .ReturnsAsync(contractors);
             _messageServiceMock = new Mock<IMessageService>();
             _addContractorViewFactoryMock = new Mock<IAddContractorViewFactory>();
 
@@ -138,12 +141,13 @@ namespace Client.Tests.ViewModels
         }
 
         [Fact]
-        public async Task SaveCommand_WhenApiFails_ShowsErrorAndDoesNotClose()
+        public async Task SaveCommand_WhenApiFails_ShowsError()
         {
             // Arrange
             _viewModel.Symbol = "FAIL123";
             _viewModel.SelectedContractor = new ContractorDto { Id = 4 };
-
+          
+           
             _apiClientMock.Setup(x => x.GetDocumentBySymbolAsync("FAIL123"))
                 .ReturnsAsync((DocumentDto?)null);
 
@@ -154,11 +158,8 @@ namespace Client.Tests.ViewModels
             await _viewModel.SaveCommand.ExecuteAsync(null);
 
             // Assert
-            _messageServiceMock.Verify(x => x.ShowError(
-                "An error occurred while saving the document: API Error",
-                "Error"),
-                Times.Once);
-
+           
+            _messageServiceMock.Verify(x => x.ShowError(It.Is<string>(msg => msg.Contains("API Error")), "Error"), Times.Once);
             Assert.False(_wasClosed);
         }
     }

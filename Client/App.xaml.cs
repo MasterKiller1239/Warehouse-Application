@@ -12,6 +12,7 @@ using Client.Services.Factories;
 using Client.Services.Interfaces.IFactories.Contractors;
 using Client.Services.Factories.Contractors;
 using Client.ViewModels.Documents;
+using Client.Views.DocumentDetails;
 namespace Client
 {
     /// <summary>
@@ -45,12 +46,17 @@ namespace Client
             services.AddSingleton<IEditContractorViewFactory, EditContractorViewFactory>();
             services.AddSingleton<IAddDocumentViewModelFactory, AddDocumentViewModelFactory>();
             services.AddSingleton<IEditDocumentViewModelFactory, EditDocumentViewModelFactory>();
+            services.AddSingleton<IEditDocumentItemViewModelFactory, EditDocumentItemViewModelFactory>();
             services.AddSingleton<IDocumentDetailsViewModelFactory, DocumentDetailsViewModelFactory>();
             services.AddSingleton<IAddDocumentItemViewModelFactory, AddDocumentItemViewModelFactory>();
-            services.AddSingleton<IEditDocumentItemViewModelFactory, EditDocumentItemViewModelFactory>();
 
             services.AddTransient<MainWindow>();
             services.AddTransient<DocumentsView>();
+            services.AddTransient<AddDocumentView>();
+            services.AddTransient<EditDocumentView>();
+            services.AddTransient<DocumentDetailsView>();
+            services.AddTransient<AddDocumentItemView>();
+            services.AddTransient<EditDocumentItemView>();
             services.AddTransient<ContractorsView>();
             services.AddTransient<AddContractorView>();
             services.AddTransient<EditContractorView>();

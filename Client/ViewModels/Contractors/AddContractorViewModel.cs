@@ -10,18 +10,20 @@ namespace Client.ViewModels.Contractors
 {
     public class AddContractorViewModel : INotifyPropertyChanged, IContractorResultProvider
     {
+        #region Fields
         private readonly IMessageService _messageService;
         private readonly IApiClient _apiClient;
-        public event EventHandler? RequestClose;
-        public AddContractorViewModel(IApiClient apiClient, IMessageService messageService)
-        {
-            _apiClient = apiClient;
-            _addCommand = new RelayCommand(async () => await AddContractor(), CanAdd);
-            CancelCommand = new RelayCommand(() => CloseAction?.Invoke());
-            _messageService = messageService;
-        }
-
         private string _symbol;
+        private string _name;
+        private readonly RelayCommand _addCommand;
+        #endregion
+
+        #region Events
+        public event PropertyChangedEventHandler? PropertyChanged;
+        public event EventHandler? RequestClose;
+        #endregion
+
+        #region Properties
         public string Symbol
         {
             get => _symbol;
@@ -31,12 +33,11 @@ namespace Client.ViewModels.Contractors
                 {
                     _symbol = value;
                     OnPropertyChanged();
-                    _addCommand.RaiseCanExecuteChanged(); 
+                    _addCommand.RaiseCanExecuteChanged();
                 }
             }
         }
 
-        private string _name;
         public string Name
         {
             get => _name;
@@ -46,26 +47,47 @@ namespace Client.ViewModels.Contractors
                 {
                     _name = value;
                     OnPropertyChanged();
-                    _addCommand.RaiseCanExecuteChanged(); 
+                    _addCommand.RaiseCanExecuteChanged();
                 }
             }
         }
 
-        private RelayCommand _addCommand;
-        public ICommand AddCommand { get => _addCommand; }
-        public ICommand CancelCommand { get; }
-
-        public Action? CloseAction { get; set; }
         public ContractorDto? NewContractor { get; private set; }
+        public Action? CloseAction { get; set; }
+        #endregion
+
+        #region Commands
+        public ICommand AddCommand => _addCommand;
+        public ICommand CancelCommand { get; }
+        #endregion
+
+        #region Constructor
+        public AddContractorViewModel(IApiClient apiClient, IMessageService messageService)
+        {
+            _apiClient = apiClient;
+            _messageService = messageService;
+
+            _addCommand = new RelayCommand(async () => await AddContractor(), CanAdd);
+            CancelCommand = new RelayCommand(() => CloseAction?.Invoke());
+        }
+        #endregion
+
+        #region Public Methods
+        #endregion
+
+        #region Private Methods
         private bool CanAdd() => !string.IsNullOrWhiteSpace(Symbol) && !string.IsNullOrWhiteSpace(Name);
+
         private async Task AddContractor()
         {
             try
             {
                 var contractor = new ContractorDto { Symbol = Symbol.Trim(), Name = Name.Trim() };
                 await _apiClient.AddContractorAsync(contractor);
+
                 NewContractor = contractor;
                 _messageService.ShowInfo("Contractor added successfully.", "Success");
+
                 RequestClose?.Invoke(this, EventArgs.Empty);
                 CloseAction?.Invoke();
             }
@@ -75,9 +97,8 @@ namespace Client.ViewModels.Contractors
             }
         }
 
-
-        public event PropertyChangedEventHandler? PropertyChanged;
         private void OnPropertyChanged([CallerMemberName] string? name = null)
             => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        #endregion
     }
 }

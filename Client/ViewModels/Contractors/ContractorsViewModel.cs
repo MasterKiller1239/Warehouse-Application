@@ -12,75 +12,108 @@ namespace Client.ViewModels.Contractors
 {
     public class ContractorsViewModel : INotifyPropertyChanged
     {
+        #region Fields
         private readonly IApiClient _apiClient;
         private readonly IMessageService _messageService;
         private readonly IAddContractorViewFactory _addContractorViewFactory;
         private readonly IEditContractorViewFactory _editContractorViewFactory;
+
         private List<ContractorDto> _allContractors = new();
-
-        private RelayCommand _editCommand;
-        private RelayCommand _sortCommand;
-        private RelayCommand _searchCommand;
-        public ObservableCollection<ContractorDto> Contractors { get; } = new();
-        public ICommand AddCommand { get; }
-        public ICommand EditCommand => _editCommand;
-        public ICommand SortCommand => _sortCommand;
-        public ICommand SearchCommand => _searchCommand;
-
         private ContractorDto _selectedContractor;
+        private string _searchText;
+        private string _selectedSortOption;
+
+        private readonly RelayCommand _editCommand;
+        private readonly RelayCommand _sortCommand;
+        private readonly RelayCommand _searchCommand;
+        #endregion
+
+        #region Events
+        public event PropertyChangedEventHandler PropertyChanged;
+        #endregion
+
+        #region Properties
+        public ObservableCollection<ContractorDto> Contractors { get; } = new ObservableCollection<ContractorDto>();
+
         public ContractorDto SelectedContractor
         {
             get => _selectedContractor;
             set
             {
-                _selectedContractor = value;
-                OnPropertyChanged();
-                _editCommand?.RaiseCanExecuteChanged();
+                if (_selectedContractor != value)
+                {
+                    _selectedContractor = value;
+                    OnPropertyChanged();
+                    _editCommand?.RaiseCanExecuteChanged();
+                }
             }
         }
 
-        private string _searchText;
         public string SearchText
         {
             get => _searchText;
             set
             {
-                _searchText = value;
-                OnPropertyChanged();
+                if (_searchText != value)
+                {
+                    _searchText = value;
+                    OnPropertyChanged();
+                }
             }
         }
 
-        private string _selectedSortOption;
         public string SelectedSortOption
         {
             get => _selectedSortOption;
             set
             {
-                _selectedSortOption = value;
-                OnPropertyChanged();
-                ApplySorting();
+                if (_selectedSortOption != value)
+                {
+                    _selectedSortOption = value;
+                    OnPropertyChanged();
+                    ApplySorting();
+                }
             }
         }
+        #endregion
 
-        public ContractorsViewModel(IApiClient apiClient, IMessageService messageService, IAddContractorViewFactory addContractorViewFactory,
-        IEditContractorViewFactory editContractorViewFactory)
+        #region Commands
+        public ICommand AddCommand { get; }
+        public ICommand EditCommand => _editCommand;
+        public ICommand SortCommand => _sortCommand;
+        public ICommand SearchCommand => _searchCommand;
+        #endregion
+
+        #region Constructor
+        public ContractorsViewModel(
+            IApiClient apiClient,
+            IMessageService messageService,
+            IAddContractorViewFactory addContractorViewFactory,
+            IEditContractorViewFactory editContractorViewFactory)
         {
             _apiClient = apiClient;
             _messageService = messageService;
             _addContractorViewFactory = addContractorViewFactory;
             _editContractorViewFactory = editContractorViewFactory;
+
             AddCommand = new RelayCommand(OnAdd);
             _editCommand = new RelayCommand(OnEdit, () => SelectedContractor != null);
             _sortCommand = new RelayCommand(ApplySorting);
             _searchCommand = new RelayCommand(ApplySearch);
+
             LoadContractors();
         }
+        #endregion
 
+        #region Public Methods
+        // (Tutaj można dodać publiczne metody, jeśli będą potrzebne)
+        #endregion
+
+        #region Private Methods
         private async void LoadContractors()
         {
             Contractors.Clear();
             _allContractors = await _apiClient.GetContractorsAsync();
-
             ApplySearch();
         }
 
@@ -96,7 +129,7 @@ namespace Client.ViewModels.Contractors
             foreach (var contractor in filtered)
                 Contractors.Add(contractor);
 
-            ApplySorting(); 
+            ApplySorting();
         }
 
         private void ApplySorting()
@@ -119,6 +152,7 @@ namespace Client.ViewModels.Contractors
             addView.ShowDialog();
             LoadContractors();
         }
+
         private void OnEdit()
         {
             if (SelectedContractor == null) return;
@@ -128,8 +162,8 @@ namespace Client.ViewModels.Contractors
             LoadContractors();
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
         private void OnPropertyChanged([CallerMemberName] string name = "") =>
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        #endregion
     }
 }

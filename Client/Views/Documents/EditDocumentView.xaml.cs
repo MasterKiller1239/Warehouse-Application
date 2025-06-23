@@ -17,7 +17,6 @@ namespace Client.Views.Documents
             InitializeComponent();
             DataContext = viewModel;
 
-            // Podpięcie zdarzenia zamknięcia z ViewModelu do Window
             viewModel.RequestClose += (result) =>
             {
                 this.DialogResult = result;

@@ -9,30 +9,42 @@ namespace Client.ViewModels.Contractors
 {
     public class EditContractorViewModel : INotifyPropertyChanged
     {
+        #region Fields
         private readonly IApiClient _apiClient;
         private readonly IMessageService _messageService;
         private readonly ContractorDto _originalContractor;
-
         private string _symbol;
+        private string _name;
+        #endregion
+
+        #region Events
+        public event PropertyChangedEventHandler PropertyChanged;
+        #endregion
+
+        #region Properties
         public string Symbol
         {
             get => _symbol;
             set => SetProperty(ref _symbol, value);
         }
 
-        private string _name;
         public string Name
         {
             get => _name;
             set => SetProperty(ref _name, value);
         }
 
+        public Action CloseAction { get; set; }
+        #endregion
+
+        #region Commands
         public ICommand SaveCommand { get; }
         public ICommand CancelCommand { get; }
-        public Action CloseAction { get; set; }
+        #endregion
 
+        #region Constructor
         public EditContractorViewModel(
-            IApiClient apiClient, 
+            IApiClient apiClient,
             ContractorDto contractor,
             IMessageService messageService)
         {
@@ -46,7 +58,13 @@ namespace Client.ViewModels.Contractors
             SaveCommand = new RelayCommand(async () => await SaveAsync());
             CancelCommand = new RelayCommand(() => CloseAction?.Invoke());
         }
+        #endregion
 
+        #region Public Methods
+        // (Placeholder for any public methods if needed)
+        #endregion
+
+        #region Private Methods
         private async Task SaveAsync()
         {
             if (string.IsNullOrWhiteSpace(Symbol) || string.IsNullOrWhiteSpace(Name))
@@ -60,8 +78,8 @@ namespace Client.ViewModels.Contractors
                 var updatedContractor = new ContractorDto
                 {
                     Id = _originalContractor.Id,
-                    Symbol = Symbol,
-                    Name = Name
+                    Symbol = Symbol.Trim(),
+                    Name = Name.Trim()
                 };
 
                 await _apiClient.UpdateContractorAsync(updatedContractor);
@@ -75,8 +93,6 @@ namespace Client.ViewModels.Contractors
             }
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
         protected bool SetProperty<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
         {
             if (EqualityComparer<T>.Default.Equals(field, value))
@@ -86,10 +102,13 @@ namespace Client.ViewModels.Contractors
             OnPropertyChanged(propertyName);
             return true;
         }
+        #endregion
 
+        #region Protected Methods
         protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+        #endregion
     }
 }

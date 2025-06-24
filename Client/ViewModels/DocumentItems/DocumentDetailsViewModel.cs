@@ -118,6 +118,11 @@ public class DocumentDetailsViewModel : INotifyPropertyChanged
 
         var vm = _editItemVmFactory.Create(SelectedItem);
         var view = new EditDocumentItemView(vm);
+        vm.RequestClose += success =>
+        {
+            if (success)
+                RefreshDocument();
+        };
         view.ShowDialog();
     }
 

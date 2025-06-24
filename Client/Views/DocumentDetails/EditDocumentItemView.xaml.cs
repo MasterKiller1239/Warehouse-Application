@@ -11,7 +11,11 @@ namespace Client.Views.DocumentDetails
         {
             InitializeComponent();
 
-            vm.RequestClose += (s, e) => Close();
+            vm.RequestClose += (result) =>
+            {
+                this.DialogResult = result;
+                this.Close();
+            };
             vm.CloseAction = Close;
             DataContext = vm;
         }

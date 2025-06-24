@@ -124,8 +124,6 @@ namespace Client.ViewModels.Documents
 
             foreach (var contractor in filtered)
                 Documents.Add(contractor);
-
-            SortDocuments("Symbol");
         }
 
         public void SortDocuments(string columnName)

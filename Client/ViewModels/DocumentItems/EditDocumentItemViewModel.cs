@@ -22,7 +22,8 @@ namespace Client.ViewModels.DocumentItems
 
         #region Events
         public event PropertyChangedEventHandler? PropertyChanged;
-        public event EventHandler? RequestClose;
+
+        public event Action<bool> RequestClose;
         #endregion
 
         #region Properties
@@ -91,7 +92,12 @@ namespace Client.ViewModels.DocumentItems
             CancelCommand = new RelayCommand(() => CloseAction?.Invoke());
         }
         #endregion
-
+        #region Public Methods
+        public void Close(bool dialogResult)
+        {
+            RequestClose?.Invoke(dialogResult);
+        }
+        #endregion
         #region Private Methods
         private async Task SaveAsync()
         {
@@ -104,7 +110,7 @@ namespace Client.ViewModels.DocumentItems
             {
                 await _apiClient.UpdateDocumentItemAsync(_item);
                 _messageService.ShowInfo("Item updated successfully.", "Success");
-                RequestClose?.Invoke(this, EventArgs.Empty);
+                RequestClose?.Invoke(true);
             }
             catch (Exception ex)
             {

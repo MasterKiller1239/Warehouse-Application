@@ -1,12 +1,9 @@
 ﻿using Client.Dtos;
 using Client.Services.Interfaces;
 using System;
-using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
-using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace Client.Services
 {
@@ -51,6 +48,11 @@ namespace Client.Services
 
         public async Task AddContractorAsync(ContractorDto contractor)
         {
+            var contractorExists = await GetContractorBySymbolAsync(contractor.Symbol);
+            if (contractorExists != null)
+            {
+                throw new InvalidOperationException($"Contractor with symbol '{contractor.Symbol}' already exists.");
+            }
             var response = await _httpClient.PostAsJsonAsync($"contractors", contractor);
             response.EnsureSuccessStatusCode();
         }

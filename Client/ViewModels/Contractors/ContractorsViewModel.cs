@@ -106,7 +106,7 @@ namespace Client.ViewModels.Contractors
         #endregion
 
         #region Public Methods
-        // (Tutaj można dodać publiczne metody, jeśli będą potrzebne)
+        // 
         #endregion
 
         #region Private Methods

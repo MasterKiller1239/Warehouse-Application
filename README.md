@@ -101,3 +101,17 @@ Tests/ # Unit tests for ViewModels
 - ✅ ViewModel unit tests with Moq
 - ✅ `IMessageService` to avoid MessageBox in tests
 - ✅ Commands and `CanExecute` logic covered
+
+**Frontend Windows**
+![lbZmWwg70E](https://github.com/user-attachments/assets/3f563539-cc34-49aa-8e93-c2b818783f53)
+![TdKeyUVP97](https://github.com/user-attachments/assets/cac3a040-c13e-4762-9d44-0fd60a15c2b7)
+![c2AqeM22ci](https://github.com/user-attachments/assets/c8526b85-321d-45be-bdb0-543ad69060c1)
+![image](https://github.com/user-attachments/assets/9b651a9a-6f96-4092-b288-2c2f1f2e3076)
+![image](https://github.com/user-attachments/assets/11fc5c04-a904-4757-9a21-f04a3eace879)
+![image](https://github.com/user-attachments/assets/d9ad8c2f-6ef4-4e8d-a586-54c0762ab944)
+![image](https://github.com/user-attachments/assets/9e42ec37-a0d1-4b13-b0e9-9667b069275c)
+![image](https://github.com/user-attachments/assets/017dbad0-2ae3-4a9c-a309-156f84628a2a)
+![image](https://github.com/user-attachments/assets/3a4451eb-d9ed-4707-a01e-a7ec0fff58d7)
+![image](https://github.com/user-attachments/assets/c91d7109-c6d8-4cd0-9704-34824fd31217)
+
+

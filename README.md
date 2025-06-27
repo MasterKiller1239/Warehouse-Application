@@ -1,4 +1,4 @@
-# 📦 WarehouseApplication – Inventory Management System (.NET 8 + WPF + PostgreSQL)
+# 📦 WarehouseApplication – Inventory Management System (.NET 8 + WPF + PostgreSQL + Docker)
 
 ## 🧾 Description
 

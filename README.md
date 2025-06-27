@@ -103,6 +103,7 @@ Tests/ # Unit tests for ViewModels
 - ✅ Commands and `CanExecute` logic covered
 
 **Frontend Windows**
+
 ![lbZmWwg70E](https://github.com/user-attachments/assets/3f563539-cc34-49aa-8e93-c2b818783f53)
 ![TdKeyUVP97](https://github.com/user-attachments/assets/cac3a040-c13e-4762-9d44-0fd60a15c2b7)
 ![c2AqeM22ci](https://github.com/user-attachments/assets/c8526b85-321d-45be-bdb0-543ad69060c1)

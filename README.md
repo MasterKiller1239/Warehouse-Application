@@ -29,6 +29,7 @@ It uses:
 - .NET 8 / ASP.NET Core Web API
 - PostgreSQL (via Entity Framework Core)
 - AutoMapper (for DTO ↔ Entity mapping)
+- Docker (for containerized backend and database setup)
 - Swagger / Swashbuckle (for API docs)
 - XUnit + Moq + FluentAssertions (unit tests)
 - Clean Architecture + SOLID Principles
@@ -46,6 +47,7 @@ It uses:
 ### ✅ Backend:
 - CRUD for Contractors, Documents, and Document Items
 - DTO-based transport layer
+- Docker support: easily run backend and PostgreSQL with docker-compose
 - Swagger UI for testing
 - Testable and layered architecture
 

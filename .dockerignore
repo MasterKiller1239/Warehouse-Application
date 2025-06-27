@@ -1,0 +1,37 @@
+# Ignoruj pliki i katalogi systemowe/IDE
+**/.vs/
+**/.vscode/
+**/.git/
+**/.github/
+**/.dockerignore
+**/.gitignore
+**/.gitattributes
+
+# Ignoruj pliki binarne i zależności
+**/bin/
+**/obj/
+**/node_modules/
+
+# Ignoruj pliki środowiskowe i konfiguracyjne (opcjonalnie)
+**/.env
+**/.env.local
+**/.env.development
+**/.env.production
+**/appsettings.Development.json  # jeśli nie chcesz ich kopiować
+
+# Ignoruj pliki użytkownika i logi
+**/*.user
+**/*.log
+**/*.suo
+**/*.pidb
+
+# Ignoruj Dockerfile w innych miejscach (opcjonalnie)
+**/Dockerfile*
+**/docker-compose*
+**/README.md
+**/LICENSE
+
+# Ignoruj testy i dokumentację (opcjonalnie)
+**/ClientTests/
+**/WarehouseApi.Tests/
+**/docs/

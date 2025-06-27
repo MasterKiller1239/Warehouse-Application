@@ -13,6 +13,7 @@ using Client.Services.Interfaces.IFactories.Contractors;
 using Client.Services.Factories.Contractors;
 using Client.ViewModels.Documents;
 using Client.Views.DocumentDetails;
+using System.Net.Http;
 namespace Client
 {
     /// <summary>
@@ -36,7 +37,13 @@ namespace Client
         {
             services.AddTransient<MainWindowViewModel>();
 
-            services.AddHttpClient<IApiClient, ApiClient>();
+            var handler = new HttpClientHandler();
+            handler.ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
+
+            services.AddSingleton<IApiClient>(new ApiClient(new HttpClient(handler)
+            {
+                BaseAddress = new Uri("https://localhost:5001/api/")
+            }));
             services.AddSingleton<IMessageService, MessageBoxService>();
 
             services.AddSingleton<IContractorsViewModelFactory, ContractorsViewModelFactory>();

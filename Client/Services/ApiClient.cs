@@ -13,8 +13,9 @@ namespace Client.Services
 
         public ApiClient(HttpClient httpClient)
         {
+
             _httpClient = httpClient;
-            _httpClient.BaseAddress = new Uri("http://localhost:5000/api/"); 
+            _httpClient.BaseAddress = new Uri("http://localhost:5000/api/");
         }
 
         public async Task<List<DocumentDto>> GetDocumentsAsync()
@@ -26,9 +27,18 @@ namespace Client.Services
 
         public async Task<List<ContractorDto>> GetContractorsAsync()
         {
-            var response = await _httpClient.GetAsync("contractors");
-            if (!response.IsSuccessStatusCode) return new List<ContractorDto>();
-            return await response.Content.ReadFromJsonAsync<List<ContractorDto>>() ?? new List<ContractorDto>();
+            try {
+                var response = await _httpClient.GetAsync("contractors");
+                if (!response.IsSuccessStatusCode) return new List<ContractorDto>();
+                return await response.Content.ReadFromJsonAsync<List<ContractorDto>>() ?? new List<ContractorDto>();
+            }
+            catch
+            (Exception ex)
+            {
+                Console.WriteLine($"Error fetching contractors: {ex.Message}");
+                return new List<ContractorDto>();
+            }
+
         }
 
         public async Task<bool> PostDocumentAsync(DocumentDto document)

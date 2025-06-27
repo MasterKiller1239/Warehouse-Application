@@ -1,0 +1,29 @@
+﻿# Etap budowania
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+WORKDIR /src
+
+# Kopiowanie tylko plików projektu i restore zależności
+COPY ["WarehouseApplication/WarehouseApplication.csproj", "WarehouseApplication/"]
+COPY ["Client/Client.csproj", "Client/"]
+RUN dotnet restore "WarehouseApplication/WarehouseApplication.csproj"
+
+# Kopiowanie reszty plików (z wykluczeniem niepotrzebnych)
+COPY WarehouseApplication/ ./WarehouseApplication/
+COPY Client/ ./Client/
+
+# Budowanie aplikacji
+WORKDIR "/src/WarehouseApplication"
+RUN dotnet build "WarehouseApplication.csproj" -c Release -o /app/build
+
+# Publikacja aplikacji
+FROM build AS publish
+RUN dotnet publish "WarehouseApplication.csproj" -c Release -o /app/publish
+
+# Etap runtime
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
+WORKDIR /app
+COPY --from=publish /app/publish .
+
+# Otwarcie portu i uruchomienie aplikacji
+EXPOSE 80
+ENTRYPOINT ["dotnet", "WarehouseApplication.dll"]

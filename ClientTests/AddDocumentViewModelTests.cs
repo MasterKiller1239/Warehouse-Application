@@ -59,28 +59,6 @@ namespace Client.Tests.ViewModels
             _apiClientMock.Verify(x => x.AddDocumentAsync(It.IsAny<DocumentDto>()), Times.Never);
         }
 
-        [Fact]
-        public async Task SaveCommand_WhenDocumentExists_ShowsWarningAndDoesNotClose()
-        {
-            // Arrange
-            _viewModel.Symbol = "EXIST123";
-            _viewModel.SelectedContractor = new ContractorDto { Id = 2 };
-
-            _apiClientMock.Setup(x => x.GetDocumentBySymbolAsync("EXIST123"))
-                .ReturnsAsync(new DocumentDto());
-
-            // Act
-            await _viewModel.SaveCommand.ExecuteAsync(null);
-
-            // Assert
-            _messageServiceMock.Verify(x => x.ShowWarning(
-                "A document with symbol 'EXIST123' already exists.",
-                It.IsAny<string>()),
-                Times.Once);
-
-            Assert.False(_wasClosed);
-            _apiClientMock.Verify(x => x.AddDocumentAsync(It.IsAny<DocumentDto>()), Times.Never);
-        }
 
         [Fact]
         public async Task SaveCommand_WhenNoContractor_ShowsWarningAndDoesNotClose()

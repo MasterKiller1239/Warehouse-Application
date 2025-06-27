@@ -1,6 +1,7 @@
 ﻿using Client.Dtos;
 using Client.Services.Interfaces;
 using Client.ViewModels.Contractors;
+using Client.ViewModels.Documents;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -13,12 +14,16 @@ namespace Client.Views.DocumentDetails
 {
     public partial class AddDocumentItemView : Window
     {
-        public AddDocumentItemView(int documentId, IApiClient apiClient, IMessageService _messageService)
+        public AddDocumentItemView(AddDocumentItemViewModel viewModel)
         {
             InitializeComponent();
-            var vm = new AddDocumentItemViewModel(documentId, apiClient, this, _messageService);
-            vm.CloseAction = Close;
-            DataContext = vm;
+            viewModel.CloseAction = Close;
+            DataContext = viewModel;
+            viewModel.RequestClose += (result) =>
+            {
+                this.DialogResult = result;
+                this.Close();
+            };
         }
     }
 }

@@ -1,5 +1,7 @@
 ﻿using Client.Dtos;
+using Client.Services.Factories.Contractors;
 using Client.Services.Interfaces;
+using Client.Services.Interfaces.IFactories.Contractors;
 using Client.ViewModels.Contractors;
 using Moq;
 namespace Client.Tests.ViewModels.Contractors
@@ -9,10 +11,14 @@ namespace Client.Tests.ViewModels.Contractors
         private readonly Mock<IApiClient> _apiClientMock;
         private readonly ContractorsViewModel _viewModel;
         private readonly Mock<IMessageService> _messageServiceMock;
+        private readonly Mock<IAddContractorViewFactory> addContractorViewFactory;
+        private readonly Mock<IEditContractorViewFactory> editContractorViewFactory;
         public ContractorsViewModelTests()
         {
             _apiClientMock = new Mock<IApiClient>();
             _messageServiceMock = new Mock<IMessageService>();
+            addContractorViewFactory = new Mock<IAddContractorViewFactory>();
+            editContractorViewFactory = new Mock<IEditContractorViewFactory>();
             _apiClientMock.Setup(x => x.GetContractorsAsync())
                 .ReturnsAsync(new List<ContractorDto>
                 {
@@ -20,7 +26,7 @@ namespace Client.Tests.ViewModels.Contractors
                     new ContractorDto { Id = 2, Name = "Globex" }
                 });
 
-            _viewModel = new ContractorsViewModel(_apiClientMock.Object, _messageServiceMock.Object);
+            _viewModel = new ContractorsViewModel(_apiClientMock.Object, _messageServiceMock.Object, addContractorViewFactory.Object,editContractorViewFactory.Object);
         }
 
         [Fact]

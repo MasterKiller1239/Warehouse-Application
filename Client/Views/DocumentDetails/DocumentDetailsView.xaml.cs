@@ -6,10 +6,10 @@ namespace Client.Views.DocumentDetails
 {
     public partial class DocumentDetailsView : Window
     {
-        public DocumentDetailsView(DocumentDto document, IApiClient apiClient, IMessageService messageService)
+        public DocumentDetailsView(DocumentDetailsViewModel vm)
         {
             InitializeComponent();
-            DataContext = new DocumentDetailsViewModel(document, apiClient, this, messageService);
+            DataContext = vm;
         }
     }
 }

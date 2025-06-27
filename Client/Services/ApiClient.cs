@@ -1,12 +1,9 @@
 ﻿using Client.Dtos;
 using Client.Services.Interfaces;
 using System;
-using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
-using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace Client.Services
 {
@@ -16,8 +13,9 @@ namespace Client.Services
 
         public ApiClient(HttpClient httpClient)
         {
+
             _httpClient = httpClient;
-            _httpClient.BaseAddress = new Uri("http://localhost:5000/api/"); 
+            _httpClient.BaseAddress = new Uri("http://localhost:5000/api/");
         }
 
         public async Task<List<DocumentDto>> GetDocumentsAsync()
@@ -29,9 +27,18 @@ namespace Client.Services
 
         public async Task<List<ContractorDto>> GetContractorsAsync()
         {
-            var response = await _httpClient.GetAsync("contractors");
-            if (!response.IsSuccessStatusCode) return new List<ContractorDto>();
-            return await response.Content.ReadFromJsonAsync<List<ContractorDto>>() ?? new List<ContractorDto>();
+            try {
+                var response = await _httpClient.GetAsync("contractors");
+                if (!response.IsSuccessStatusCode) return new List<ContractorDto>();
+                return await response.Content.ReadFromJsonAsync<List<ContractorDto>>() ?? new List<ContractorDto>();
+            }
+            catch
+            (Exception ex)
+            {
+                Console.WriteLine($"Error fetching contractors: {ex.Message}");
+                return new List<ContractorDto>();
+            }
+
         }
 
         public async Task<bool> PostDocumentAsync(DocumentDto document)
@@ -51,6 +58,11 @@ namespace Client.Services
 
         public async Task AddContractorAsync(ContractorDto contractor)
         {
+            var contractorExists = await GetContractorBySymbolAsync(contractor.Symbol);
+            if (contractorExists != null)
+            {
+                throw new InvalidOperationException($"Contractor with symbol '{contractor.Symbol}' already exists.");
+            }
             var response = await _httpClient.PostAsJsonAsync($"contractors", contractor);
             response.EnsureSuccessStatusCode();
         }

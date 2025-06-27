@@ -62,12 +62,12 @@
             <Button Content="Documents" 
                     Style="{StaticResource MaterialDesignPrimaryButton}"
                     Background="{DynamicResource PrimaryHueMidBrush}"
-                    Click="OpenDocumentsView"/>
+                    Command="{Binding OpenDocumentsCommand}"/>
 
             <Button Content="Contractors" 
                     Style="{StaticResource MaterialDesignPrimaryButton}"
                     Background="{DynamicResource SecondaryHueMidBrush}"
-                    Click="OpenContractorsView"/>
+                    Command="{Binding OpenContractorsCommand}"/>
         </UniformGrid>
     </Grid>
 </Window>

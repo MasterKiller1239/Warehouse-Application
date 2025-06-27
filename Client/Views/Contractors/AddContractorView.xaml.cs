@@ -6,13 +6,10 @@ namespace Client.Views.Contractors
 {
     public partial class AddContractorView : Window
     {
-        public AddContractorView(IApiClient apiClient, IMessageService _messageService)
+
+        public AddContractorView()
         {
             InitializeComponent();
-
-            var vm = new AddContractorViewModel(apiClient, _messageService);
-            vm.CloseAction = Close;
-            DataContext = vm;
         }
 
         private void ViewModel_RequestClose(object? sender, EventArgs e)

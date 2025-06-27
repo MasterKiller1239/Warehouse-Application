@@ -2,28 +2,39 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
-        Title="Documents" Height="450" Width="600"
-        
-        WindowStartupLocation="CenterScreen">
+        Title="Documents" 
+        Height="600" 
+        Width="800"
+        WindowStartupLocation="CenterScreen"
+        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+        Background="{DynamicResource MaterialDesignPaper}">
+
     <Window.Resources>
-        <Style x:Key="SortButton" TargetType="Button">
+        <Style x:Key="SortButton" TargetType="Button" BasedOn="{StaticResource MaterialDesignFlatButton}">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="HorizontalContentAlignment" Value="Left"/>
-            <Setter Property="Padding" Value="0"/>
-            <Setter Property="Background" Value="{DynamicResource AcrylicBackgroundFillColorBaseBrush}"/>
-            <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}"/>
+            <Setter Property="Padding" Value="4 0"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
-            
+            <Setter Property="TextElement.Foreground" Value="{DynamicResource MaterialDesignBody}"/>
+        </Style>
+
+        <Style x:Key="ActionButton" TargetType="Button" BasedOn="{StaticResource MaterialDesignOutlinedButton}">
+            <Setter Property="Margin" Value="8 0 0 0"/>
+            <Setter Property="MinWidth" Value="120"/>
+            <Setter Property="Height" Value="36"/>
         </Style>
     </Window.Resources>
-    <Grid Margin="10">
+
+    <Grid Margin="16">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
+
+        <!-- Header Section -->
         <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0 0 0 20">
             <materialDesign:PackIcon Kind="FileDocument" 
                                    Width="28" 
@@ -32,66 +43,119 @@
             <TextBlock Text="Documents Management" 
                       Margin="12 0 0 0"
                       VerticalAlignment="Center"
-                      Style="{StaticResource MaterialDesignBody1TextBlock}"/>
+                       FontWeight="SemiBold"
+                      Style="{StaticResource MaterialDesignBody1TextBlock}" />
         </StackPanel>
-        <StackPanel Orientation="Horizontal" Grid.Row="1" HorizontalAlignment="Right" Margin="0,0,0,10">
-            <TextBox materialDesign:HintAssist.Hint="Search by symbol..."
-             Style="{StaticResource MaterialDesignOutlinedTextBox}"
-             Margin="0 0 0 12"
-             Text="{Binding SymbolSearchText, UpdateSourceTrigger=PropertyChanged}" Width="301">
+
+        <!-- Search and Actions Section -->
+        <Grid Grid.Row="1" Margin="0 0 0 16">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <TextBox Grid.Column="0"
+                    materialDesign:HintAssist.Hint="Search documents by symbol..."
+                    Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                    Width="350"
+                    HorizontalAlignment="Left"
+                    Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}">
                 <TextBox.InputBindings>
-                    <KeyBinding Key="Enter" Command="{Binding SearchCommand}" />
+                    <KeyBinding Key="Enter" Command="{Binding SearchCommand}"/>
                 </TextBox.InputBindings>
             </TextBox>
-            <Button Content="Add Document" Command="{Binding AddDocumentCommand}" Margin="5"/>
-            <Button Content="Edit Document" Command="{Binding EditDocumentCommand}" Margin="5"/>
-        </StackPanel>
 
-        <ListView Grid.Row="2" ItemsSource="{Binding Documents}" SelectedItem="{Binding SelectedDocument}">
+            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                <Button Content="ADD DOCUMENT"
+                        Command="{Binding AddDocumentCommand}"
+                        Style="{StaticResource MaterialDesignRaisedButton}"
+                        Margin="8 0 0 0"/>
+
+                <Button Content="EDIT"
+                        Command="{Binding EditDocumentCommand}"
+                        Style="{StaticResource ActionButton}"/>
+            </StackPanel>
+        </Grid>
+
+        <!-- Documents List -->
+        <ListView Grid.Row="2" 
+                  ItemsSource="{Binding Documents}" 
+                  SelectedItem="{Binding SelectedDocument}"
+                  BorderThickness="0"
+                  ScrollViewer.HorizontalScrollBarVisibility="Disabled">
             <ListView.View>
                 <GridView>
-                    <GridViewColumn Header="Symbol" Width="150" DisplayMemberBinding="{Binding Symbol}">
+                    <GridViewColumn Header="Symbol" Width="200">
                         <GridViewColumn.HeaderTemplate>
                             <DataTemplate>
-                                <Grid>
-                                    <Button Content="Symbol"
-                    Command="{Binding DataContext.SortCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                    CommandParameter="Symbol"
-                    Style="{StaticResource SortButton}" />
-                                </Grid>
+                                <Button Content="SYMBOL"
+                                        Command="{Binding DataContext.SortCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                        CommandParameter="Symbol"
+                                        Style="{StaticResource SortButton}"/>
                             </DataTemplate>
                         </GridViewColumn.HeaderTemplate>
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Symbol}" 
+                                           Margin="8 4"
+                                           FontWeight="SemiBold"
+                                           Style="{StaticResource MaterialDesignBody2TextBlock}"/>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
                     </GridViewColumn>
 
-                    <GridViewColumn Header="Date" Width="150" DisplayMemberBinding="{Binding Date}">
+                    <GridViewColumn Header="Date" Width="180">
                         <GridViewColumn.HeaderTemplate>
                             <DataTemplate>
-                                <Grid>
-                                    <Button Content="Date"
-                    Command="{Binding DataContext.SortCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                    CommandParameter="Date"
-                    Style="{StaticResource SortButton}" />
-                                </Grid>
+                                <Button Content="DATE"
+                                        Command="{Binding DataContext.SortCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                        CommandParameter="Date"
+                                        Style="{StaticResource SortButton}"/>
                             </DataTemplate>
                         </GridViewColumn.HeaderTemplate>
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Date, StringFormat=d}" 
+                                           Margin="8 4"
+                                           FontWeight="SemiBold"
+                                           Style="{StaticResource MaterialDesignBody2TextBlock}"/>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
                     </GridViewColumn>
 
-                    <GridViewColumn Header="Contractor" Width="200" DisplayMemberBinding="{Binding Contractor.Name}">
+                    <GridViewColumn Header="Contractor" Width="250">
                         <GridViewColumn.HeaderTemplate>
                             <DataTemplate>
-                                <Grid>
-                                    <Button Content="Contractor"
-                    Command="{Binding DataContext.SortCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                    CommandParameter="Contractor.Name"
-                    Style="{StaticResource SortButton}" />
-                                </Grid>
+                                <Button Content="CONTRACTOR"
+                                        Command="{Binding DataContext.SortCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                        CommandParameter="Contractor.Name"
+                                        Style="{StaticResource SortButton}"/>
                             </DataTemplate>
                         </GridViewColumn.HeaderTemplate>
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Contractor.Name}" 
+                                           Margin="8 4"
+                                           FontWeight="SemiBold"
+                                           Style="{StaticResource MaterialDesignBody2TextBlock}"/>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
                     </GridViewColumn>
                 </GridView>
             </ListView.View>
+            <ListView.ItemContainerStyle>
+                <Style TargetType="ListViewItem" BasedOn="{StaticResource MaterialDesignGridViewItem}">
+                    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                    <Setter Property="Padding" Value="8 4"/>
+                </Style>
+            </ListView.ItemContainerStyle>
         </ListView>
 
-        <Button Grid.Row="3" Content="View Details" Command="{Binding OpenDetailsCommand}" HorizontalAlignment="Right" Margin="0,10,0,0" />
+        <!-- Footer Section -->
+        <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0 16 0 0">
+            <Button Content="VIEW DETAILS"
+                    Command="{Binding OpenDetailsCommand}"
+                    Style="{StaticResource ActionButton}"/>
+        </StackPanel>
     </Grid>
 </Window>

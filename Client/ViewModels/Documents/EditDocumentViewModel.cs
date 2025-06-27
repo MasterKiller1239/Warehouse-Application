@@ -1,37 +1,35 @@
 ﻿using Client.Dtos;
 using Client.Services.Interfaces;
+using Client.Services.Interfaces.IFactories.Contractors;
 using Client.Utilities;
 using Client.ViewModels.Contractors;
-using Client.Views.Contractors;
+using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 
 public class EditDocumentViewModel : INotifyPropertyChanged
 {
+    #region Fields
     private readonly IApiClient _apiClient;
-    public ICommand AddContractorCommand { get; }
-    public ICommand CancelCommand { get; }
     private readonly IMessageService _messageService;
-    public EditDocumentViewModel(IApiClient apiClient, DocumentDto document, IMessageService messageService)
-    {
-        _apiClient = apiClient ?? throw new ArgumentNullException(nameof(apiClient));
-        Document = document ?? throw new ArgumentNullException(nameof(document));
-        _messageService = messageService;
-        Contractors = new ObservableCollection<ContractorDto>();
-        LoadContractorsCommand = new RelayCommand(async () => await LoadContractorsAsync());
-        UpdateCommand = new RelayCommand(async () => await UpdateDocumentAsync());
-        CancelCommand = new RelayCommand(() => CloseAction?.Invoke());
-        AddContractorCommand = new RelayCommand(async () => await OpenAddContractorDialog());
-        _ = LoadContractorsAsync();
-
-    }
-    public Action? CloseAction { get; set; }
-    public DocumentDto Document { get; }
+    private readonly IAddContractorViewFactory _addContractorViewFactory;
 
     private ContractorDto? _selectedContractor;
+    #endregion
+
+    #region Events
+    public event PropertyChangedEventHandler? PropertyChanged;
+    public event Action<bool> RequestClose;
+    #endregion
+
+    #region Properties
+    public DocumentDto Document { get; }
+
     public ContractorDto? SelectedContractor
     {
         get => _selectedContractor;
@@ -45,74 +43,132 @@ public class EditDocumentViewModel : INotifyPropertyChanged
         }
     }
 
-    public ObservableCollection<ContractorDto> Contractors { get; private set; }
+    public ObservableCollection<ContractorDto> Contractors { get; }
 
+    public Action? CloseAction { get; set; }
+    #endregion
+
+    #region Commands
     public ICommand LoadContractorsCommand { get; }
     public ICommand UpdateCommand { get; }
-  
-    public async Task LoadContractorsAsync()
+    public ICommand CancelCommand { get; }
+    public ICommand AddContractorCommand { get; }
+    #endregion
+
+    #region Constructor
+    public EditDocumentViewModel(
+        IApiClient apiClient,
+        DocumentDto document,
+        IMessageService messageService,
+        IAddContractorViewFactory addContractorViewFactory)
     {
-        var contractors = await _apiClient.GetContractorsAsync();
+        _apiClient = apiClient ?? throw new ArgumentNullException(nameof(apiClient));
+        _messageService = messageService ?? throw new ArgumentNullException(nameof(messageService));
+        _addContractorViewFactory = addContractorViewFactory ?? throw new ArgumentNullException(nameof(addContractorViewFactory));
 
+        Document = document ?? throw new ArgumentNullException(nameof(document));
+        Contractors = new ObservableCollection<ContractorDto>();
 
-        await Application.Current.Dispatcher.InvokeAsync(() =>
-        {
-            Contractors.Clear();
-            foreach (var contractor in contractors)
-            {
-                Contractors.Add(contractor);
-            }
-
-            SelectedContractor = Contractors.FirstOrDefault(c => c.Id == Document.ContractorId);
-        });
+        LoadContractorsCommand = new RelayCommand(async () => await LoadContractorsAsync());
+        UpdateCommand = new RelayCommand(async () => await UpdateDocumentAsync());
+        AddContractorCommand = new RelayCommand(async () => await OpenAddContractorDialog());
+        CancelCommand = new RelayCommand(() => Close(true));
+        _ = LoadContractorsAsync();
     }
 
-    public async Task UpdateDocumentAsync()
+    #endregion
+
+    #region Public Methods
+    public void Close(bool dialogResult)
+    {
+        RequestClose?.Invoke(dialogResult);
+    }
+    #endregion
+
+    #region Private Methods
+    private async Task LoadContractorsAsync()
+    {
+        try
+        {
+            var contractors = await _apiClient.GetContractorsAsync();
+
+            await Application.Current.Dispatcher.InvokeAsync(() =>
+            {
+                Contractors.Clear();
+                foreach (var contractor in contractors)
+                {
+                    Contractors.Add(contractor);
+                }
+
+                SelectedContractor = Contractors.FirstOrDefault(c => c.Id == Document.ContractorId);
+            });
+        }
+        catch (Exception ex)
+        {
+            _messageService.ShowError($"Error loading contractors: {ex.Message}");
+        }
+    }
+
+    private async Task UpdateDocumentAsync()
+    {
+        if (!ValidateDocument())
+            return;
+
+        try
+        {
+            PrepareDocumentForUpdate();
+            await _apiClient.UpdateDocumentAsync(Document);
+
+            _messageService.ShowInfo("Document updated successfully.");
+            RequestClose?.Invoke(true);
+        }
+        catch (Exception ex)
+        {
+            _messageService.ShowError($"Error updating document: {ex.Message}");
+        }
+    }
+
+    private bool ValidateDocument()
     {
         if (SelectedContractor == null)
         {
-            MessageBox.Show("Please select a contractor.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
-            return;
+            _messageService.ShowWarning("Please select a contractor.");
+            return false;
         }
 
         if (string.IsNullOrWhiteSpace(Document.Symbol))
         {
-            MessageBox.Show("Symbol cannot be empty.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
-            return;
+            _messageService.ShowWarning("Symbol cannot be empty.");
+            return false;
         }
 
+        return true;
+    }
+
+    private void PrepareDocumentForUpdate()
+    {
         Document.Contractor = SelectedContractor;
         Document.Date = Document.Date.ToUniversalTime();
-        try
-        {
-            await _apiClient.UpdateDocumentAsync(Document);
-            MessageBox.Show("Document updated successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
-
-            RequestClose?.Invoke(this, EventArgs.Empty);
-        }
-        catch (Exception ex)
-        {
-            MessageBox.Show($"Error updating document: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-        }
     }
+
     private async Task OpenAddContractorDialog()
     {
-        var window = new AddContractorView(_apiClient,_messageService);
+        var window = _addContractorViewFactory.Create();
         if (window.ShowDialog() == true)
         {
-            if (window.DataContext is IContractorResultProvider provider && provider.NewContractor is ContractorDto newContractor)
+            await LoadContractorsAsync();
+            if (window.DataContext is IContractorResultProvider provider &&
+                provider.NewContractor is ContractorDto newContractor)
             {
 
-                await LoadContractorsAsync();
                 SelectedContractor = Contractors.Where(contractor => contractor.Name == newContractor.Name).FirstOrDefault();
             }
         }
     }
 
-    public event EventHandler? RequestClose;
-
-    public event PropertyChangedEventHandler? PropertyChanged;
-
     protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
-        => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
+    #endregion
 }

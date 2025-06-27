@@ -26,7 +26,7 @@ namespace Client.Tests.ViewModels
                 Name = "OldName"
             };
 
-            _viewModel = new EditContractorViewModel(_apiClientMock.Object, _contractor, null!, _messageServiceMock.Object)
+            _viewModel = new EditContractorViewModel(_apiClientMock.Object, _contractor, _messageServiceMock.Object)
             {
                 CloseAction = () => _wasClosed = true
             };
@@ -81,7 +81,7 @@ namespace Client.Tests.ViewModels
 
             // Assert
             _apiClientMock.Verify(x => x.UpdateContractorAsync(It.IsAny<ContractorDto>()), Times.Once);
-            Assert.False(_wasClosed);
+            Assert.True(_wasClosed);
         }
 
         private static async Task ExecuteCommandAsync(System.Windows.Input.ICommand command)

@@ -9,49 +9,100 @@ using System.Windows.Input;
 
 public class AddDocumentItemViewModel : INotifyPropertyChanged
 {
+    #region Fields
     private readonly int _documentId;
     private readonly IApiClient _apiClient;
     private readonly IMessageService _messageService;
-    public AddDocumentItemViewModel(int documentId, IApiClient apiClient, Window window, IMessageService messageService)
+    private readonly RelayCommand _addCommand;
+
+    private string _productName = string.Empty;
+    private string _unit = string.Empty;
+    private string _quantityText = string.Empty;
+    #endregion
+
+    #region Events
+    public event PropertyChangedEventHandler? PropertyChanged;
+    public event Action<bool> RequestClose;
+    #endregion
+
+    #region Properties
+    public string ProductName
+    {
+        get => _productName;
+        set
+        {
+            _productName = value;
+            OnPropertyChanged();
+            _addCommand.RaiseCanExecuteChanged();
+        }
+    }
+
+    public string Unit
+    {
+        get => _unit;
+        set
+        {
+            _unit = value;
+            OnPropertyChanged();
+            _addCommand.RaiseCanExecuteChanged();
+        }
+    }
+
+    public string QuantityText
+    {
+        get => _quantityText;
+        set
+        {
+            _quantityText = value;
+            OnPropertyChanged();
+            _addCommand.RaiseCanExecuteChanged();
+        }
+    }
+
+    public Action? CloseAction { get; set; }
+    #endregion
+
+    #region Commands
+    public ICommand AddCommand => _addCommand;
+    public ICommand CancelCommand { get; }
+    #endregion
+
+    #region Constructor
+    public AddDocumentItemViewModel(
+        int documentId,
+        IApiClient apiClient,
+        IMessageService messageService)
     {
         _documentId = documentId;
         _apiClient = apiClient;
         _messageService = messageService;
+
         _addCommand = new RelayCommand(async () => await AddItemAsync(), CanAdd);
         CancelCommand = new RelayCommand(() => CloseAction?.Invoke());
     }
+    #endregion
 
-    private string _productName = string.Empty;
-    public string ProductName
+    #region Public Methods
+    public void Close(bool dialogResult)
     {
-        get => _productName;
-        set { _productName = value; OnPropertyChanged(); _addCommand.RaiseCanExecuteChanged(); }
+        RequestClose?.Invoke(dialogResult);
     }
+    #endregion
 
-    private string _unit = string.Empty;
-    public string Unit
-    {
-        get => _unit;
-        set { _unit = value; OnPropertyChanged(); _addCommand.RaiseCanExecuteChanged(); }
-    }
-
-    private string _quantityText = string.Empty;
-    public string QuantityText
-    {
-        get => _quantityText;
-        set { _quantityText = value; OnPropertyChanged(); _addCommand.RaiseCanExecuteChanged(); }
-    }
-
-    public ICommand AddCommand => _addCommand;
-    private RelayCommand _addCommand;
-    public ICommand CancelCommand { get; }
-    public Action? CloseAction { get; set; }
+    #region Private Methods
     private bool CanAdd()
     {
-        if (string.IsNullOrWhiteSpace(ProductName)) return false;
-        if (string.IsNullOrWhiteSpace(Unit)) return false;
-        if (!decimal.TryParse(QuantityText, NumberStyles.Number, CultureInfo.InvariantCulture, out decimal qty)) return false;
-        if (qty <= 0) return false;
+        if (string.IsNullOrWhiteSpace(ProductName))
+            return false;
+
+        if (string.IsNullOrWhiteSpace(Unit))
+            return false;
+
+        if (!decimal.TryParse(QuantityText, NumberStyles.Number, CultureInfo.InvariantCulture, out decimal qty))
+            return false;
+
+        if (qty <= 0)
+            return false;
 
         return true;
     }
@@ -70,7 +121,7 @@ public class AddDocumentItemViewModel : INotifyPropertyChanged
         {
             await _apiClient.AddDocumentItemAsync(item);
             _messageService.ShowInfo("Item added successfully.", "Success");
-            CloseAction?.Invoke();
+            Close(true);
         }
         catch (Exception ex)
         {
@@ -78,7 +129,9 @@ public class AddDocumentItemViewModel : INotifyPropertyChanged
         }
     }
 
-    public event PropertyChangedEventHandler? PropertyChanged;
     private void OnPropertyChanged([CallerMemberName] string? name = null)
-        => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+    }
+    #endregion
 }

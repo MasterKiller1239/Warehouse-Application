@@ -8,7 +8,7 @@
         TextElement.FontSize="13"
         TextOptions.TextFormattingMode="Ideal"
         TextOptions.TextRenderingMode="Auto"
-       Background="{DynamicResource MaterialDesign.Brush.Primary.Light}"
+        Background="{DynamicResource AcrylicBackgroundFillColorBaseBrush}"
         Title="Contractors Management" 
         Height="500" 
         Width="800"
@@ -93,8 +93,8 @@
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
 
-                            <TextBlock Text="{Binding Name}" Grid.Column="0" />
-                            <TextBlock Text="{Binding Symbol}" Grid.Column="1" Margin="10,0,0,0" Foreground="Gray"/>
+                            <TextBlock Text="{Binding Name}" FontWeight="SemiBold" Grid.Column="0" />
+                            <TextBlock Text="{Binding Symbol}" FontWeight="SemiBold" Grid.Column="1" Margin="10,0,0,0" Foreground="Gray"/>
                         </Grid>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
@@ -103,7 +103,7 @@
 
         <!-- Action Buttons -->
         <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0 16 0 0">
-            <Button Content="ADD NEW" Margin="0 0 16 0"
+            <Button Content="ADD NEW" Margin="0 0 12 0" 
                     Command="{Binding AddCommand}"
                    >
                 <Button.ContentTemplate>

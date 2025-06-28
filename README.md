@@ -62,21 +62,37 @@ It uses:
 ## 📁 Project Structure
 
 **Backend – WarehouseApplication/**
+
 Controllers/ # API endpoints
+
 Services/ # Business logic
+
 └── Interfaces/ # Service interfaces
+
 Data/ # EF Core DbContext
+
 └── Interfaces/ # IWarehouseContext abstraction
+
 Dtos/ # DTOs
+
 Models/ # Entity classes
+
 Tests/ # XUnit, Moq-based unit tests
+
 **Client – Client/**
+
 ViewModels/ # MVVM ViewModels
+
 Views/ # WPF Windows (Add/Edit)
+
 Services/ # ApiClient and MessageService
+
 Utilities/ # Helpers (e.g., RelayCommand)
+
 Factories/ # IWindowFactory for modal dialogs
+
 Tests/ # Unit tests for ViewModels
+
 
 ## 🔗 Sample API Endpoints
 

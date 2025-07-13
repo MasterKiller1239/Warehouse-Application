@@ -5,7 +5,7 @@ namespace WarehouseApplication.Models
     [Table("documents")]
     public class Document
     {
-        public int Id { get; set; }
+        public int? Id { get; set; }
         public DateTime Date { get; set; }
         public required string Symbol { get; set; }
 

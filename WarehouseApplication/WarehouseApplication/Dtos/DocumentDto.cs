@@ -2,7 +2,7 @@
 {
     public class DocumentDto
     {
-        public int Id { get; set; }
+        public int? Id { get; set; }
         public DateTime Date { get; set; }
         public string Symbol { get; set; }
         public int ContractorId { get; set; }

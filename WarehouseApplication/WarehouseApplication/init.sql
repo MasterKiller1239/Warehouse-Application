@@ -1,14 +1,14 @@
 
 -- Create contractors table
 CREATE TABLE contractors (
-    id integer NOT NULL PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     symbol varchar(50) NOT NULL UNIQUE,
     name varchar(255) NOT NULL
 );
 
 -- Create documents table
 CREATE TABLE documents (
-    id integer NOT NULL PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     date date NOT NULL,
     symbol varchar(100) NOT NULL,
     contractorid integer NOT NULL,
@@ -17,7 +17,7 @@ CREATE TABLE documents (
 
 -- Create document_items table
 CREATE TABLE document_items (
-    id integer NOT NULL PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     productname varchar(255) NOT NULL,
     unit varchar(50) NOT NULL,
     quantity numeric(12,2) NOT NULL,
@@ -137,4 +137,3 @@ INSERT INTO document_items (id, productname, unit, quantity, documentid) VALUES
 (37, 'balsam', 'szt', 510.00, 33),
 (17, 'kanapka', 'szt', 2.00, 23),
 (21, 'taśma', 'szt', 123.00, 22);
-```

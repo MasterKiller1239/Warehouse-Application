@@ -124,7 +124,7 @@ namespace WarehouseApplication.Tests.Controllers
             var controller = new DocumentItemsController(_contextMock.Object, _mapper);
 
             // Act
-            var result = await controller.Put(existing.Id, dto);
+            var result = await controller.Put((int)existing.Id, dto);
 
             // Assert
             Assert.IsType<NoContentResult>(result);

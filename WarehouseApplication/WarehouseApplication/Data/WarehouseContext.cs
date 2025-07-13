@@ -13,7 +13,8 @@ namespace WarehouseApplication.Data
             modelBuilder.Entity<Contractor>(entity =>
             {
                 entity.ToTable("contractors");
-                entity.Property(e => e.Id).HasColumnName("id");
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Id).HasColumnName("id").ValueGeneratedOnAdd();
                 entity.Property(e => e.Name).HasColumnName("name");
                 entity.Property(e => e.Symbol).HasColumnName("symbol");
             });
@@ -22,7 +23,7 @@ namespace WarehouseApplication.Data
             {
                 entity.ToTable("documents");
                 entity.HasKey(d => d.Id);
-                entity.Property(e => e.Id).HasColumnName("id");
+                entity.Property(e => e.Id).HasColumnName("id").ValueGeneratedOnAdd();
                 entity.Property(e => e.Date).HasColumnName("date");
                 entity.Property(e => e.Symbol).HasColumnName("symbol");
                 entity.Property(e => e.ContractorId).HasColumnName("contractorid");
@@ -35,7 +36,8 @@ namespace WarehouseApplication.Data
             modelBuilder.Entity<DocumentItem>(entity =>
             {
                 entity.ToTable("document_items");
-                entity.Property(e => e.Id).HasColumnName("id");
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Id).HasColumnName("id").ValueGeneratedOnAdd();
                 entity.Property(e => e.ProductName).HasColumnName("productname");
                 entity.Property(e => e.Unit).HasColumnName("unit");
                 entity.Property(e => e.Quantity).HasColumnName("quantity");

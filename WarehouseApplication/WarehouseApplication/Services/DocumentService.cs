@@ -55,7 +55,7 @@ namespace WarehouseApplication.Services
             }
             else if (contractor != null && dto.Contractor != null)
             {
-                entity.ContractorId = contractor.Id;
+                entity.ContractorId = (int)contractor.Id;
                 entity.Contractor = contractor;
             }
             else if (contractor == null)

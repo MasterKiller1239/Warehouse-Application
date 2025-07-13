@@ -165,7 +165,7 @@ namespace Client.ViewModels.Documents
             {
                 Symbol = Symbol.Trim(),
                 Date = Date.ToUniversalTime(),
-                ContractorId = SelectedContractor!.Id,
+                ContractorId = SelectedContractor.Id,
                 Contractor = SelectedContractor,
                 Items = new List<DocumentItemDto>()
             };

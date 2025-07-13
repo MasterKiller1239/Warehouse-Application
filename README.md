@@ -1,4 +1,4 @@
-# 📦 WarehouseApplication – Inventory Management System (.NET 8 + WPF + PostgreSQL + Docker)
+# 📦 WarehouseApplication – Inventory Management System (.NET 8 + WPF + PostgreSQL + Docker + Kubernetes)
 
 ## 🧾 Description
 
@@ -6,6 +6,7 @@ WarehouseApplication is a full-stack inventory management system consisting of:
 
 - A clean and scalable ASP.NET Core Web API backend
 - A modern WPF desktop client for managing contractors, warehouse documents, and items
+- Containerized PostgreSQL database and API with optional Kubernetes deployment
 
 The project demonstrates clean software architecture, testable layers, and a user-friendly desktop interface connected to a real-time backend.
 
@@ -26,21 +27,22 @@ It uses:
 ## 🛠️ Tech Stack
 
 **Backend:**
-- .NET 8 / ASP.NET Core Web API
-- PostgreSQL (via Entity Framework Core)
-- AutoMapper (for DTO ↔ Entity mapping)
-- Docker (for containerized backend and database setup)
-- Swagger / Swashbuckle (for API docs)
-- XUnit + Moq + FluentAssertions (unit tests)
-- Clean Architecture + SOLID Principles
-- Layered design (Controllers, Services, Repositories)
+- ✅ .NET 8 / ASP.NET Core Web API
+- ✅ PostgreSQL (via Entity Framework Core)
+- ✅ AutoMapper (for DTO ↔ Entity mapping)
+- ✅ Docker (for containerized backend and database setup)
+- ✅ Kubernetes (YAML manifests for deployment, PersistentVolumeClaims, ConfigMaps)
+- ✅ Swagger / Swashbuckle (for API docs)
+- ✅ XUnit + Moq + FluentAssertions (unit tests)
+- ✅ Clean Architecture + SOLID Principles
+- ✅ Layered design (Controllers, Services, Repositories)
 
 **Frontend (Client):**
-- WPF (Windows Presentation Foundation)
-- MVVM Pattern
-- REST API integration via `IApiClient`
-- ViewModel unit tests with mocked services
-- `ICommand`, `INotifyPropertyChanged`, event-based dialogs
+- ✅ WPF (Windows Presentation Foundation)
+- ✅ MVVM Pattern
+- ✅ REST API integration via `IApiClient`
+- ✅ ViewModel unit tests with mocked services
+- ✅ `ICommand`, `INotifyPropertyChanged`, event-based dialogs
 
 ## 📚 Main Features
 

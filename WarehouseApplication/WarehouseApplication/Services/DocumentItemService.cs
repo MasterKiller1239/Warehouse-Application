@@ -1,49 +1,45 @@
 ﻿using AutoMapper;
-using Microsoft.EntityFrameworkCore;
-using WarehouseApplication.Data.Interfaces;
 using WarehouseApplication.Dtos;
 using WarehouseApplication.Models;
+using WarehouseApplication.Repositories.Interfaces;
 using WarehouseApplication.Services.Interfaces;
 
 namespace WarehouseApplication.Services
 {
     public class DocumentItemService : IDocumentItemService
     {
-        private readonly IWarehouseContext _context;
+        private readonly IDocumentItemRepository _repository;
         private readonly IMapper _mapper;
 
-        public DocumentItemService(IWarehouseContext context, IMapper mapper)
+        public DocumentItemService(IDocumentItemRepository repository, IMapper mapper)
         {
-            _context = context;
+            _repository = repository;
             _mapper = mapper;
         }
 
         public async Task<IEnumerable<DocumentItemDto>> GetAllAsync()
         {
-            var items = await _context.DocumentItems.ToListAsync();
+            var items = await _repository.GetAllAsync();
             return _mapper.Map<IEnumerable<DocumentItemDto>>(items);
         }
 
         public async Task<DocumentItemDto?> GetByIdAsync(int id)
         {
-            var item = await _context.DocumentItems.FindAsync(id);
+            var item = await _repository.GetByIdAsync(id);
             return item is null ? null : _mapper.Map<DocumentItemDto>(item);
         }
 
         public async Task<IEnumerable<DocumentItemDto>> GetByDocumentIdAsync(int documentId)
         {
-            var items = await _context.DocumentItems
-                .Where(i => i.DocumentId == documentId)
-                .ToListAsync();
-
+            var items = await _repository.GetByDocumentIdAsync(documentId);
             return _mapper.Map<IEnumerable<DocumentItemDto>>(items);
         }
 
         public async Task<DocumentItemDto> CreateAsync(DocumentItemDto dto)
         {
             var entity = _mapper.Map<DocumentItem>(dto);
-            _context.DocumentItems.Add(entity);
-            await _context.SaveChangesAsync();
+            await _repository.CreateAsync(entity);
+            // po zapisaniu id powinno się ustawić (w repozytorium, jeśli to EF Core to jest automatyczne)
             return _mapper.Map<DocumentItemDto>(entity);
         }
 
@@ -51,12 +47,11 @@ namespace WarehouseApplication.Services
         {
             if (id != dto.Id) return false;
 
-            var entity = await _context.DocumentItems.FindAsync(id);
+            var entity = await _repository.GetByIdAsync(id);
             if (entity == null) return false;
 
             _mapper.Map(dto, entity);
-            await _context.SaveChangesAsync();
-            return true;
+            return await _repository.UpdateAsync(entity);
         }
     }
 

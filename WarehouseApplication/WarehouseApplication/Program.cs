@@ -2,6 +2,8 @@ using Microsoft.EntityFrameworkCore;
 using WarehouseApplication.Data;
 using WarehouseApplication.Data.Interfaces;
 using WarehouseApplication.Extensions;
+using WarehouseApplication.Repositories;
+using WarehouseApplication.Repositories.Interfaces;
 using WarehouseApplication.Services;
 using WarehouseApplication.Services.Interfaces;
 
@@ -16,6 +18,9 @@ builder.Services.AddDbContext<IWarehouseContext, WarehouseContext>(options =>
         npgsqlOptions => npgsqlOptions.EnableRetryOnFailure()));
 
 // Registers application services with scoped lifetime (one per HTTP request)
+builder.Services.AddScoped<IDocumentRepository, DocumentRepository>();
+builder.Services.AddScoped<IContractorRepository, ContractorRepository>();
+builder.Services.AddScoped<IDocumentItemRepository, DocumentItemRepository>();
 builder.Services.AddScoped<IContractorService, ContractorService>();
 builder.Services.AddScoped<IDocumentItemService, DocumentItemService>();
 builder.Services.AddScoped<IDocumentService, DocumentService>();

@@ -1,41 +1,45 @@
 ﻿using AutoMapper;
-using Microsoft.EntityFrameworkCore;
-using WarehouseApplication.Data.Interfaces;
 using WarehouseApplication.Dtos;
 using WarehouseApplication.Models;
+using WarehouseApplication.Repositories.Interfaces;
 using WarehouseApplication.Services.Interfaces;
 
 namespace WarehouseApplication.Services
 {
     public class ContractorService : IContractorService
     {
-        private readonly IWarehouseContext _context;
+        private readonly IContractorRepository _repository;
         private readonly IMapper _mapper;
 
-        public ContractorService(IWarehouseContext context, IMapper mapper)
+        public ContractorService(IContractorRepository repository, IMapper mapper)
         {
-            _context = context;
+            _repository = repository;
             _mapper = mapper;
         }
 
         public async Task<IEnumerable<ContractorDto>> GetAllAsync()
         {
-            var entities = await _context.Contractors.ToListAsync();
+            var entities = await _repository.GetAllAsync();
             return _mapper.Map<IEnumerable<ContractorDto>>(entities);
         }
 
         public async Task<ContractorDto?> GetByIdAsync(int id)
         {
-            var entity = await _context.Contractors.FindAsync(id);
-            if (entity == null) return null;
-            return _mapper.Map<ContractorDto>(entity);
+            var entity = await _repository.GetByIdAsync(id);
+            return entity == null ? null : _mapper.Map<ContractorDto>(entity);
+        }
+
+        public async Task<ContractorDto?> GetBySymbolAsync(string symbol)
+        {
+            var entity = await _repository.GetBySymbolAsync(symbol);
+            return entity == null ? null : _mapper.Map<ContractorDto>(entity);
         }
 
         public async Task<ContractorDto> CreateAsync(ContractorDto dto)
         {
             var entity = _mapper.Map<Contractor>(dto);
-            _context.Contractors.Add(entity);
-            await _context.SaveChangesAsync();
+            await _repository.AddAsync(entity);
+            await _repository.SaveChangesAsync();
             return _mapper.Map<ContractorDto>(entity);
         }
 
@@ -43,27 +47,13 @@ namespace WarehouseApplication.Services
         {
             if (id != dto.Id) return false;
 
-            var entity = await _context.Contractors.FindAsync(id);
+            var entity = await _repository.GetByIdAsync(id);
             if (entity == null) return false;
 
             _mapper.Map(dto, entity);
-            await _context.SaveChangesAsync();
+            await _repository.UpdateAsync(entity);
+            await _repository.SaveChangesAsync();
             return true;
-        }
-        public async Task<ContractorDto?> GetBySymbolAsync(string symbol)
-        {
-            var contractor = await _context.Contractors
-                .FirstOrDefaultAsync(c => c.Symbol == symbol);
-
-            if (contractor == null)
-                return null;
-
-            return new ContractorDto
-            {
-                Id = contractor.Id,
-                Symbol = contractor.Symbol,
-                Name = contractor.Name
-            };
         }
     }
 

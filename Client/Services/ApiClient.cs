@@ -39,8 +39,6 @@ namespace Client.Services
 
         public async Task<bool> UpdateDocumentAsync(DocumentDto document)
         {
-            if (document.Id <= 0)
-                throw new ArgumentException("Document ID must be greater than zero for update.");
 
             var response = await _httpClient.PutAsJsonAsync($"documents/{document.Id}", document);
             return response.IsSuccessStatusCode;

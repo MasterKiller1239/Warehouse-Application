@@ -45,10 +45,12 @@ namespace WarehouseApplication.Services
 
         public async Task<bool> UpdateAsync(int id, ContractorDto dto)
         {
-            if (id != dto.Id) return false;
+            if (id != dto.Id)
+                return false;
 
             var entity = await _repository.GetByIdAsync(id);
-            if (entity == null) return false;
+            if (entity == null)
+                return false;
 
             _mapper.Map(dto, entity);
             await _repository.UpdateAsync(entity);
@@ -56,5 +58,4 @@ namespace WarehouseApplication.Services
             return true;
         }
     }
-
 }

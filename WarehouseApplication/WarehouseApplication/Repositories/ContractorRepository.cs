@@ -23,8 +23,11 @@ namespace WarehouseApplication.Repositories
         public async Task<Contractor?> GetBySymbolAsync(string symbol)
             => await _context.Contractors.FirstOrDefaultAsync(c => c.Symbol == symbol);
 
-        public async Task AddAsync(Contractor contractor)
-            => await _context.Contractors.AddAsync(contractor);
+        public Task AddAsync(Contractor contractor)
+        {
+            _context.Contractors.Add(contractor);
+            return Task.CompletedTask;
+        }
 
         public Task UpdateAsync(Contractor contractor)
         {

@@ -26,7 +26,6 @@ namespace WarehouseApplication.Repositories
         {
             return await _context.Documents
                 .Include(d => d.Items)
-                .Include(d => d.Contractor)
                 .FirstOrDefaultAsync(d => d.Id == id);
         }
 

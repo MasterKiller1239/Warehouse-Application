@@ -27,7 +27,7 @@ namespace WarehouseApplication.Repositories
         public async Task<IEnumerable<DocumentItem>> GetByDocumentIdAsync(int documentId)
         {
             return await _context.DocumentItems
-                                 .Where(di => di.DocumentId == documentId)
+                                 .Where(item => item.DocumentId == documentId)
                                  .ToListAsync();
         }
 
@@ -40,8 +40,8 @@ namespace WarehouseApplication.Repositories
         public async Task<bool> UpdateAsync(DocumentItem entity)
         {
             _context.DocumentItems.Update(entity);
-            var result = await _context.SaveChangesAsync();
-            return result > 0;
+            var affectedRows = await _context.SaveChangesAsync();
+            return affectedRows > 0;
         }
     }
 }

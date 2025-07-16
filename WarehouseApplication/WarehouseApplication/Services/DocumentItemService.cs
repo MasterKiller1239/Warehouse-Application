@@ -26,7 +26,7 @@ namespace WarehouseApplication.Services
         public async Task<DocumentItemDto?> GetByIdAsync(int id)
         {
             var item = await _repository.GetByIdAsync(id);
-            return item is null ? null : _mapper.Map<DocumentItemDto>(item);
+            return item == null ? null : _mapper.Map<DocumentItemDto>(item);
         }
 
         public async Task<IEnumerable<DocumentItemDto>> GetByDocumentIdAsync(int documentId)
@@ -39,20 +39,20 @@ namespace WarehouseApplication.Services
         {
             var entity = _mapper.Map<DocumentItem>(dto);
             await _repository.CreateAsync(entity);
-            // po zapisaniu id powinno się ustawić (w repozytorium, jeśli to EF Core to jest automatyczne)
             return _mapper.Map<DocumentItemDto>(entity);
         }
 
         public async Task<bool> UpdateAsync(int id, DocumentItemDto dto)
         {
-            if (id != dto.Id) return false;
+            if (id != dto.Id)
+                return false;
 
-            var entity = await _repository.GetByIdAsync(id);
-            if (entity == null) return false;
+            var existing = await _repository.GetByIdAsync(id);
+            if (existing == null)
+                return false;
 
-            _mapper.Map(dto, entity);
-            return await _repository.UpdateAsync(entity);
+            _mapper.Map(dto, existing);
+            return await _repository.UpdateAsync(existing);
         }
     }
-
 }

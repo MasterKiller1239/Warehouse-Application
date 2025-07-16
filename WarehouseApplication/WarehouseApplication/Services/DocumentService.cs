@@ -34,14 +34,23 @@ namespace WarehouseApplication.Services
             return document == null ? null : _mapper.Map<DocumentDto>(document);
         }
 
+        public async Task<DocumentDto?> GetBySymbolAsync(string symbol)
+        {
+            var document = await _documentRepository.GetBySymbolAsync(symbol);
+            return document == null ? null : _mapper.Map<DocumentDto>(document);
+        }
+
         public async Task<DocumentDto> CreateAsync(DocumentDto dto)
         {
-            var entity = _mapper.Map<Document>(dto);
+            var document = _mapper.Map<Document>(dto);
 
             var contractor = await _contractorRepository.GetByIdAsync(dto.ContractorId);
 
-            if (contractor == null && dto.Contractor != null)
+            if (contractor == null)
             {
+                if (dto.Contractor == null)
+                    throw new ArgumentException("Contractor not found and no contractor data provided");
+
                 contractor = new Contractor
                 {
                     Id = dto.ContractorId,
@@ -52,34 +61,27 @@ namespace WarehouseApplication.Services
             }
             else if (contractor != null && dto.Contractor != null)
             {
-                entity.ContractorId = (int)contractor.Id;
-                entity.Contractor = contractor;
+                document.Contractor = contractor;
+                document.ContractorId = (int)contractor.Id;
             }
             else if (contractor == null)
             {
                 throw new ArgumentException("Contractor not found and no contractor data provided");
             }
 
-            await _documentRepository.CreateAsync(entity);
-            return _mapper.Map<DocumentDto>(entity);
+            await _documentRepository.CreateAsync(document);
+
+            return _mapper.Map<DocumentDto>(document);
         }
 
         public async Task<bool> UpdateAsync(int id, DocumentDto dto)
         {
-            var entity = await _documentRepository.GetByIdAsync(id);
-            if (entity == null) return false;
+            var document = await _documentRepository.GetByIdAsync(id);
+            if (document == null) return false;
 
-            _mapper.Map(dto, entity);
+            _mapper.Map(dto, document);
 
-            return await _documentRepository.UpdateAsync(entity);
-        }
-
-        public async Task<DocumentDto?> GetBySymbolAsync(string symbol)
-        {
-            var entity = await _documentRepository.GetBySymbolAsync(symbol);
-            if (entity == null) return null;
-
-            return _mapper.Map<DocumentDto>(entity);
+            return await _documentRepository.UpdateAsync(document);
         }
     }
 }
